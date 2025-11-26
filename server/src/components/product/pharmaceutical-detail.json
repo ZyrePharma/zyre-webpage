@@ -1,0 +1,21 @@
+{
+  "collectionName": "components_product_pharmaceutical_details",
+  "info": {
+    "displayName": "Product Detail",
+    "description": "Pharmaceutical information section for products"
+  },
+  "options": {},
+  "attributes": {
+    "label": {
+      "type": "string",
+      "required": true
+    },
+    "description": {
+      "type": "text",
+      "required": true
+    },
+    "order": {
+      "type": "integer"
+    }
+  }
+}

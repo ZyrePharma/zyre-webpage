@@ -1,0 +1,27 @@
+{
+  "kind": "singleType",
+  "collectionName": "about_zyres",
+  "info": {
+    "singularName": "about-zyre",
+    "pluralName": "about-zyres",
+    "displayName": "About Zyre"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "about": {
+      "type": "text"
+    },
+    "history": {
+      "type": "text"
+    },
+    "mission": {
+      "type": "text"
+    },
+    "vision": {
+      "type": "text"
+    }
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "kind": "collectionType",
+  "collectionName": "company_galleries",
+  "info": {
+    "singularName": "company-gallery",
+    "pluralName": "company-galleries",
+    "displayName": "Company Gallery"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "text"
+    },
+    "images": {
+      "type": "media",
+      "multiple": true,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "category": {
+      "type": "string"
+    },
+    "order": {
+      "type": "integer"
+    }
+  }
+}

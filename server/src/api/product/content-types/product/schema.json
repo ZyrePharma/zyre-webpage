@@ -1,0 +1,63 @@
+{
+  "kind": "collectionType",
+  "collectionName": "products",
+  "info": {
+    "singularName": "product",
+    "pluralName": "products",
+    "displayName": "Product",
+    "description": "Pharmaceutical products with detailed information"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "genericName": {
+      "type": "string",
+      "required": true
+    },
+    "type": {
+      "type": "string",
+      "required": true
+    },
+    "size": {
+      "type": "string"
+    },
+    "images": {
+      "type": "media",
+      "multiple": true,
+      "required": true,
+      "allowedTypes": [
+        "images"
+      ]
+    },
+    "fdaId": {
+      "type": "string"
+    },
+    "price": {
+      "type": "decimal"
+    },
+    "featured": {
+      "type": "boolean",
+      "default": false
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "name"
+    },
+    "productDetails": {
+      "type": "component",
+      "component": "product.pharmaceutical-detail",
+      "repeatable": true
+    },
+    "Distributor": {
+      "type": "component",
+      "component": "distributor.distributor",
+      "repeatable": false
+    }
+  }
+}

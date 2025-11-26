@@ -1,0 +1,37 @@
+{
+  "kind": "collectionType",
+  "collectionName": "business_partners",
+  "info": {
+    "singularName": "business-partner",
+    "pluralName": "business-partners",
+    "displayName": "Business Partner"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string"
+    },
+    "order": {
+      "type": "integer"
+    },
+    "logo": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "website": {
+      "type": "string"
+    },
+    "description": {
+      "type": "text"
+    }
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "kind": "collectionType",
+  "collectionName": "job_listings",
+  "info": {
+    "singularName": "job-listing",
+    "pluralName": "job-listings",
+    "displayName": "Job Listing"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string"
+    },
+    "type": {
+      "type": "enumeration",
+      "enum": [
+        "Full Time",
+        "Part Time",
+        "Contract"
+      ]
+    },
+    "category": {
+      "type": "string"
+    },
+    "location": {
+      "type": "string"
+    },
+    "vacancies": {
+      "type": "integer"
+    },
+    "salaryRange": {
+      "type": "string"
+    },
+    "description": {
+      "type": "blocks"
+    },
+    "requirements": {
+      "type": "blocks"
+    },
+    "responsibilities": {
+      "type": "blocks"
+    },
+    "postedDate": {
+      "type": "date"
+    },
+    "applicants": {
+      "type": "integer"
+    },
+    "active": {
+      "type": "boolean"
+    }
+  }
+}
