@@ -11,8 +11,13 @@
   },
   "pluginOptions": {},
   "attributes": {
-    "title": {
+    "position": {
       "type": "string"
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "position",
+      "required": true
     },
     "type": {
       "type": "enumeration",
@@ -22,7 +27,7 @@
         "Contract"
       ]
     },
-    "category": {
+    "department": {
       "type": "string"
     },
     "location": {

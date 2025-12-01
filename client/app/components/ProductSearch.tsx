@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { FaSearch, FaTimes } from 'react-icons/fa';
 import { ProductSearchProps } from '../types';
@@ -24,13 +24,6 @@ const ProductSearch: React.FC<ProductSearchProps> = ({
     (value: string) => onSearch(value),
     SEARCH_CONFIG.DEBOUNCE_DELAY
   );
-
-  // Sync local state with prop when it changes externally
-  useEffect(() => {
-    if (searchQuery !== localSearchQuery) {
-      setLocalSearchQuery(searchQuery);
-    }
-  }, [searchQuery, localSearchQuery]);
 
   const handleClearSearch = () => {
     setLocalSearchQuery('');

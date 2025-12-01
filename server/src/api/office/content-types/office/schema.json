@@ -1,0 +1,26 @@
+{
+  "kind": "collectionType",
+  "collectionName": "offices",
+  "info": {
+    "singularName": "office",
+    "pluralName": "offices",
+    "displayName": "Office"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string"
+    },
+    "address": {
+      "type": "string"
+    },
+    "contact": {
+      "type": "component",
+      "component": "contact.contact",
+      "repeatable": true
+    }
+  }
+}

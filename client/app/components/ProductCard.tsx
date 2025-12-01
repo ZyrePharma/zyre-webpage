@@ -1,10 +1,10 @@
 'use client';
 
-import React, { memo } from 'react';
+import React, { memo, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { FaRegStar } from 'react-icons/fa';
-import { motion } from 'framer-motion';
+import { FaRegStar, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ProductCardProps } from '../types';
 import {
   ANIMATION_DELAYS,
@@ -14,6 +14,8 @@ import {
 
 // Memoized component for better performance
 const Card: React.FC<{ product: ProductCardProps }> = memo(({ product }) => {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
   // Animation variants
   const cardVariants = {
     initial: { opacity: 0, y: 30 },
@@ -56,6 +58,21 @@ const Card: React.FC<{ product: ProductCardProps }> = memo(({ product }) => {
     },
   };
 
+  const imageVariants = {
+    enter: (direction: number) => ({
+      x: direction > 0 ? 100 : -100,
+      opacity: 0,
+    }),
+    center: {
+      x: 0,
+      opacity: 1,
+    },
+    exit: (direction: number) => ({
+      x: direction < 0 ? 100 : -100,
+      opacity: 0,
+    }),
+  };
+
   // Truncate description if too long
   const truncatedDescription =
     product.description.length > PRODUCT_CONFIG.MAX_DESCRIPTION_LENGTH
@@ -64,6 +81,29 @@ const Card: React.FC<{ product: ProductCardProps }> = memo(({ product }) => {
         PRODUCT_CONFIG.MAX_DESCRIPTION_LENGTH
       )}...`
       : product.description;
+
+  // Image navigation handlers
+  const handlePrevImage = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setCurrentImageIndex((prev) =>
+      prev === 0 ? product.images.length - 1 : prev - 1
+    );
+  };
+
+  const handleNextImage = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setCurrentImageIndex((prev) =>
+      prev === product.images.length - 1 ? 0 : prev + 1
+    );
+  };
+
+  const handleDotClick = (e: React.MouseEvent, index: number) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setCurrentImageIndex(index);
+  };
 
   return (
     <Link
@@ -78,16 +118,65 @@ const Card: React.FC<{ product: ProductCardProps }> = memo(({ product }) => {
         whileTap="tap"
         className="max-w-[280px] w-full shadow-xl bg-white flex flex-col items-center rounded-2xl overflow-hidden cursor-pointer hover:shadow-2xl transition-shadow duration-300 border border-gray-300 border-b-8 border-b-primary"
       >
-        <div className="relative w-full h-48 sm:h-56 border border-gray-300 overflow-hidden">
-          <Image
-            src={product.image}
-            alt={`${product.name} - ${product.description}`}
-            fill
-            className="object-cover transition-transform duration-500 hover:scale-105"
-            sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-            quality={PRODUCT_CONFIG.IMAGE_QUALITY}
-            priority={false}
-          />
+        <div className="relative w-full h-48 sm:h-56 border border-gray-300 overflow-hidden group">
+          {/* Image Carousel */}
+          <AnimatePresence initial={false} custom={currentImageIndex}>
+            <motion.div
+              key={currentImageIndex}
+              custom={currentImageIndex}
+              variants={imageVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{ duration: 0.3 }}
+              className="absolute inset-0"
+            >
+              <Image
+                src={product.images[currentImageIndex]}
+                alt={`${product.name} - Image ${currentImageIndex + 1}`}
+                fill
+                className="object-cover"
+                sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                quality={PRODUCT_CONFIG.IMAGE_QUALITY}
+                priority={false}
+              />
+            </motion.div>
+          </AnimatePresence>
+
+          {/* Navigation Arrows - Only show if multiple images */}
+          {product.images.length > 1 && (
+            <>
+              <button
+                onClick={handlePrevImage}
+                className="absolute left-2 top-1/2 -translate-y-1/2 z-30 bg-white/80 hover:bg-white p-2 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                aria-label="Previous image"
+              >
+                <FaChevronLeft className="text-primary text-sm" />
+              </button>
+              <button
+                onClick={handleNextImage}
+                className="absolute right-2 top-1/2 -translate-y-1/2 z-30 bg-white/80 hover:bg-white p-2 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                aria-label="Next image"
+              >
+                <FaChevronRight className="text-primary text-sm" />
+              </button>
+
+              {/* Image Dots Indicator */}
+              <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-30 flex gap-1.5">
+                {product.images.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={(e) => handleDotClick(e, index)}
+                    className={`w-2 h-2 rounded-full transition-all duration-200 ${index === currentImageIndex
+                      ? 'bg-primary w-4'
+                      : 'bg-white/60 hover:bg-white/80'
+                      }`}
+                    aria-label={`Go to image ${index + 1}`}
+                  />
+                ))}
+              </div>
+            </>
+          )}
 
           {/* Size Badge */}
           <motion.span
@@ -100,11 +189,11 @@ const Card: React.FC<{ product: ProductCardProps }> = memo(({ product }) => {
           </motion.span>
 
           {/* FDA Approval Badge */}
-          <motion.div
+          {/* <motion.div
             variants={badgeVariants}
             initial="initial"
             animate="animate"
-            className="absolute z-20 bottom-2 right-2 mt-2 px-2 py-0.5 bg-green-400 text-gray-500 text-[10px] rounded-full flex items-center space-x-1 shadow"
+            className="absolute z-20 top-2 left-2 mt-2 px-2 py-0.5 bg-green-400 text-gray-500 text-[10px] rounded-full flex items-center space-x-1 shadow"
           >
             <FaRegStar className="text-yellow-500 text-sm" />
             <div className="flex flex-col items-start">
@@ -113,38 +202,34 @@ const Card: React.FC<{ product: ProductCardProps }> = memo(({ product }) => {
               </span>
               <span className="text-[8px] uppercase">{product.fdaId}</span>
             </div>
-          </motion.div>
+          </motion.div> */}
         </div>
 
-        <div className="w-full flex flex-col mt-2 px-3 pb-3">
+        <div className="w-full flex flex-col mt-2 px-3 pb-3 h-[120px]">
           <motion.div
             variants={infoVariants}
             initial="initial"
             animate="animate"
-            className="flex justify-between items-start"
+            className="flex justify-between items-start h-full"
           >
             <div className="flex flex-col items-start flex-1 min-w-0">
-              <span className="text-xs uppercase text-[var(--color-zyre-red)] font-semibold">
-                {product.genericName}
-              </span>
-              <h3 className="text-base sm:text-lg font-bold uppercase text-primary truncate w-full">
+              <h3 className="text-base sm:text-lg font-bold uppercase text-primary truncate w-full h-[24px]">
                 {product.name}
               </h3>
-              <p className="text-xs text-primary mt-1 line-clamp-2">
+              <span className="text-xs uppercase text-[var(--color-zyre-red)] font-semibold h-[18px]">
+                {product.genericName}
+              </span>
+              <p className="text-xs text-primary mt-1 line-clamp-2 h-[32px]">
                 {truncatedDescription}
               </p>
-              {product.price && (
-                <span className="text-base font-bold text-gray-800 mt-2">
-                  ${product.price.toFixed(2)}
-                </span>
-              )}
+
             </div>
 
             <motion.span
               whileHover={{ scale: 1.05 }}
-              className="text-xs text-white bg-primary px-2 py-1 rounded-l-3xl whitespace-nowrap self-start shadow flex-shrink-0"
+              className="text-xs text-white bg-primary px-2 py-1 rounded-l-3xl whitespace-nowrap self-start shadow flex-shrink-0 h-fit"
             >
-              {product.type}
+              {product.category}
             </motion.span>
           </motion.div>
 

@@ -1,0 +1,53 @@
+{
+    "kind": "collectionType",
+    "collectionName": "hero_slides",
+    "info": {
+        "singularName": "hero-slide",
+        "pluralName": "hero-slides",
+        "displayName": "Hero Slide",
+        "description": "Hero carousel slides for the homepage"
+    },
+    "options": {
+        "draftAndPublish": true
+    },
+    "pluginOptions": {},
+    "attributes": {
+        "title": {
+            "type": "string",
+            "required": true,
+            "maxLength": 255
+        },
+        "description": {
+            "type": "text",
+            "required": true
+        },
+        "image": {
+            "type": "media",
+            "multiple": false,
+            "required": true,
+            "allowedTypes": [
+                "images"
+            ]
+        },
+        "order": {
+            "type": "integer",
+            "required": true,
+            "default": 0,
+            "min": 0
+        },
+        "isActive": {
+            "type": "boolean",
+            "default": true,
+            "required": true
+        },
+        "buttonText": {
+            "type": "string",
+            "default": "Read More",
+            "maxLength": 50
+        },
+        "buttonLink": {
+            "type": "string",
+            "maxLength": 255
+        }
+    }
+}

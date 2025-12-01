@@ -14,10 +14,10 @@ interface TimelineEvent {
   yMobile?: number;
 }
 
-const mission =
-  'To enhance the Filipino quality of life by providing superior level, yet cost-effective pharmaceutical products nationwide and to help achieve and fulfill the hierarchy of needs of each employee within the company';
-const vision =
-  'To be one of the leading pharmaceutical companies in the Philippines';
+interface CompanyTimelineProps {
+  mission: string;
+  vision: string;
+}
 
 const timelineEvents: TimelineEvent[] = [
   {
@@ -85,7 +85,7 @@ const timelineEvents: TimelineEvent[] = [
   },
 ];
 
-const CompanyTimeline: React.FC = () => {
+const CompanyTimeline: React.FC<CompanyTimelineProps> = ({ mission, vision }) => {
   const [isHovered, setIsHovered] = useState<number | null>(null);
 
   // Create reference for the container

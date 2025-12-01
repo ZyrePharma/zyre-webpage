@@ -6,7 +6,7 @@ import { FaUser, FaRegCalendarAlt } from 'react-icons/fa';
 import { IoIosPeople } from 'react-icons/io';
 
 interface Job {
-  id: number;
+  id: string;
   title: string;
   type: string;
   category: string;

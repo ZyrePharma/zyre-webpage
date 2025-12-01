@@ -17,7 +17,7 @@ export function searchProducts(products: Product[], query: string): Product[] {
     const searchableFields = [
       product.name,
       product.genericName,
-      product.type,
+      product.category,
       product.description,
       product.manufacturer,
       product.country,
@@ -40,7 +40,7 @@ export function advancedSearch(
   products: Product[],
   criteria: {
     query?: string;
-    type?: string;
+    category?: string;
     manufacturer?: string;
     priceRange?: { min: number; max: number };
   }
@@ -52,10 +52,10 @@ export function advancedSearch(
     filteredProducts = searchProducts(filteredProducts, criteria.query);
   }
 
-  // Type filter
-  if (criteria.type) {
+  // Category filter
+  if (criteria.category) {
     filteredProducts = filteredProducts.filter(
-      (product) => product.type.toLowerCase() === criteria.type!.toLowerCase()
+      (product) => product.category.toLowerCase() === criteria.category!.toLowerCase()
     );
   }
 
@@ -91,7 +91,7 @@ export function advancedSearch(
  */
 export function sortProducts(
   products: Product[],
-  sortBy: 'name' | 'price' | 'type' | 'manufacturer',
+  sortBy: 'name' | 'price' | 'category' | 'manufacturer',
   order: 'asc' | 'desc' = 'asc'
 ): Product[] {
   const sortedProducts = [...products];
@@ -109,9 +109,9 @@ export function sortProducts(
         aValue = a.price || 0;
         bValue = b.price || 0;
         break;
-      case 'type':
-        aValue = a.type.toLowerCase();
-        bValue = b.type.toLowerCase();
+      case 'category':
+        aValue = a.category.toLowerCase();
+        bValue = b.category.toLowerCase();
         break;
       case 'manufacturer':
         aValue = a.manufacturer.toLowerCase();

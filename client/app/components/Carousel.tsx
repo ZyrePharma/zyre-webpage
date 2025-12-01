@@ -4,19 +4,26 @@ import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 
-const images = [
-  { src: '/assets/img1.jpg', alt: 'img1' },
-  { src: '/assets/img2.jpg', alt: 'img2' },
-  { src: '/assets/img3.jpg', alt: 'img3' },
-  { src: '/assets/img4.jpg', alt: 'img4' },
-  { src: '/assets/img5.jpg', alt: 'img5' },
-];
 
-const Carousel = () => {
+
+interface CarouselImage {
+  src: string;
+  alt: string;
+}
+
+interface CarouselProps {
+  images?: CarouselImage[];
+}
+
+const Carousel = ({ images: propImages }: CarouselProps) => {
+  const images = propImages || [];
   const [activeIndices, setActiveIndices] = useState([0, 1, 2, 3, 4]);
   const [animating, setAnimating] = useState(false);
   const [windowWidth, setWindowWidth] = useState<number | undefined>(undefined);
   const [isMounted, setIsMounted] = useState(false);
+
+  // Check if we have enough images for the carousel
+  const hasEnoughImages = images.length >= 5;
 
   useEffect(() => {
     // Initial window width setup
@@ -37,7 +44,7 @@ const Carousel = () => {
     setAnimating(true);
     setActiveIndices((prev) => prev.map((idx) => (idx + 1) % images.length));
     setTimeout(() => setAnimating(false), 600);
-  }, [animating]);
+  }, [animating, images.length]);
 
   const handlePrev = useCallback(() => {
     if (animating) return;
@@ -46,7 +53,7 @@ const Carousel = () => {
       prev.map((idx) => (idx - 1 + images.length) % images.length)
     );
     setTimeout(() => setAnimating(false), 600);
-  }, [animating]);
+  }, [animating, images.length]);
 
   useEffect(() => {
     const slideInterval = setInterval(() => {
@@ -106,7 +113,7 @@ const Carousel = () => {
   // Prevent hydration mismatch by not rendering until mounted
   if (!isMounted) {
     return (
-      <div className="relative w-full h-screen bg-white py-8 md:py-12 lg:py-16 overflow-hidden">
+      <div className="relative w-full h-screen bg-white py-6 md:py-12 lg:py-14 overflow-hidden">
         <div className="text-center mb-6 md:mb-8 lg:mb-10 max-w-3xl mx-auto px-4">
           <h2 className="text-xl md:text-2xl lg:text-4xl font-bold mb-2 md:mb-4">
             <span className="text-primary">FROM </span>
@@ -123,9 +130,31 @@ const Carousel = () => {
     );
   }
 
+  // Show message if not enough images
+  if (!hasEnoughImages) {
+    return (
+      <div className="relative w-full h-screen bg-white py-6 md:py-12 lg:py-14 overflow-hidden flex items-center justify-center">
+        <div className="text-center max-w-3xl mx-auto px-4">
+          <h2 className="text-xl md:text-2xl lg:text-4xl font-bold mb-2 md:mb-4">
+            <span className="text-primary">FROM </span>
+            <span className="text-[var(--color-zyre-red)] font-script">
+              Bicol{' '}
+            </span>
+            <span className="text-primary">TO NATIONWIDE COVERAGE</span>
+          </h2>
+          <p className="text-gray-700 text-xs md:text-sm lg:text-lg">
+            {images.length === 0
+              ? 'Loading products...'
+              : `Need at least 5 products for carousel (currently have ${images.length})`}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="relative w-full h-screen bg-white py-8 md:py-12 lg:py-16 overflow-hidden">
-      <div className="text-center mb-6 md:mb-8 lg:mb-10 max-w-3xl mx-auto px-4">
+    <div className="relative w-full h-screen bg-white py-6 md:py-10 lg:py-14 overflow-hidden flex flex-col">
+      <div className="text-center mb-6 md:mb-10 lg:mb-12 max-w-3xl mx-auto px-4">
         <h2 className="text-xl md:text-2xl lg:text-4xl font-bold mb-2 md:mb-4">
           <span className="text-primary">FROM </span>
           <span className="text-[var(--color-zyre-red)] font-script">
@@ -138,8 +167,8 @@ const Carousel = () => {
         </p>
       </div>
 
-      <div className="relative mx-auto">
-        <div className="relative h-48 sm:h-60 md:h-72 lg:h-[420px]">
+      <div className="relative mx-auto flex-1 flex items-center">
+        <div className="relative w-full h-full max-h-[600px]">
           <AnimatePresence initial={false}>
             {activeIndices.map((imageIndex, displayIndex) => {
               let xPosition;
@@ -168,7 +197,8 @@ const Carousel = () => {
               }
 
               // Scale based on position
-              const scale = 1 - Math.abs(displayIndex - 2) * 0.07;
+              const baseScale = 1 - Math.abs(displayIndex - 2) * 0.07;
+              const scale = displayIndex === 2 ? baseScale * 1.15 : baseScale;
 
               // Opacity
               const opacity =
@@ -183,7 +213,7 @@ const Carousel = () => {
               return (
                 <motion.div
                   key={`${imageIndex}-${displayIndex}`}
-                  className="absolute top-0 rounded-xl overflow-hidden shadow-lg cursor-pointer"
+                  className="absolute top-0 rounded-xl overflow-hidden shadow-lg cursor-pointer border-1 border-gray-400 shadow-[0_8px_30px_rgba(0,57,92,0.3)] bg-white"
                   style={{
                     width: imageWidth,
                     maxWidth: imageMaxWidth,
@@ -206,8 +236,8 @@ const Carousel = () => {
                 >
                   <div className="relative w-full h-full">
                     <Image
-                      src={images[imageIndex].src}
-                      alt={images[imageIndex].alt}
+                      src={images[imageIndex]?.src || '/assets/img1.jpg'}
+                      alt={images[imageIndex]?.alt || 'Product image'}
                       fill
                       className="object-cover rounded-xl"
                     />

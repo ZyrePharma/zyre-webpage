@@ -3,32 +3,13 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
+import { Office, Portal, SisterCompany } from '../types';
 
-const portals = [
-  { label: 'ZyreHRMS', href: 'https://zyre-hrms.com' },
-  { label: 'ZyreMS', href: 'https://zyre-ms.com' },
-  { label: 'ZyrePOS', href: '/' },
-  { label: 'ZyreAccounting', href: '/' },
-];
-
-const companies = [
-  { label: 'Greentech LifeSciences Inc.', href: '/' },
-  { label: 'MEDACE Pharmaceuciticals', href: '/' },
-  { label: 'GENEX', href: '/' },
-  { label: 'SAVEON', href: '/' },
-];
-
-const contactsLegaspi = [
-  { label: 'Tel. No.', number: '(+63) 52 742-2844' },
-  { label: 'Mobile No.', number: '(+63) 933-816-8646' },
-  { label: 'Mobile No.', number: '(+63) 917-148-0687' },
-];
-
-const contactsMakati = [
-  { label: 'Tel. No.', number: '(+63) 52 742-2844' },
-  { label: 'Mobile No.', number: '(+63) 917-713-9577' },
-  { label: 'Mobile No.', number: '(+63) 933-816-8652' },
-];
+interface FooterProps {
+  offices: Office[];
+  portals: Portal[];
+  companies: SisterCompany[];
+}
 
 const socialLinks = [
   { name: 'Facebook', href: 'https://www.facebook.com', icon: 'facebook' },
@@ -50,7 +31,7 @@ const legalLinks = [
   { label: 'Terms of Service', href: '/terms-of-service' },
 ];
 
-const Footer = () => (
+const Footer: React.FC<FooterProps> = ({ offices, portals, companies }) => (
   <footer className="bg-secondary w-full flex flex-col lg:flex-row lg:items-end border">
     {/* Logo Section - Hidden on mobile, visible on lg+ */}
     <div className="hidden lg:flex items-end ml-2 xl:ml-4">
@@ -90,58 +71,31 @@ const Footer = () => (
             Offices
           </h4>
 
-          {/* Corporate Office */}
-          <div className="space-y-0.5">
-            <Link
-              href={'https://www.google.com/maps'}
-              className="text-xs lg:text-sm underline hover:text-white transition-colors"
-            >
-              Corporate Office
-            </Link>
-            <div className="flex flex-col xl:flex-row xl:justify-between gap-1">
-              <p className="text-[10px] lg:text-xs xl:text-sm max-w-md leading-tight">
-                Unit 201, ZPC Building, Rizal St., Old Albay,
-                <br />
-                Legazpi City, Philippines, 4500
-              </p>
-              <div className="flex flex-col gap-0">
-                {contactsLegaspi.map((contact, index) => (
-                  <i
-                    className="italic text-[10px] lg:text-xs leading-tight"
-                    key={index}
-                  >
-                    {contact.label}: {contact.number}
-                  </i>
-                ))}
+          {offices.map((office) => (
+            <div key={office.id} className="space-y-0.5">
+              <Link
+                href={office.mapUrl || 'https://www.google.com/maps'}
+                className="text-xs lg:text-sm underline hover:text-white transition-colors"
+              >
+                {office.name}
+              </Link>
+              <div className="flex flex-col xl:flex-row xl:justify-between gap-1">
+                <p className="text-[10px] lg:text-xs xl:text-sm max-w-md leading-tight">
+                  {office.address}
+                </p>
+                <div className="flex flex-col gap-0">
+                  {office.contact.map((contact, index) => (
+                    <i
+                      className="italic text-[10px] lg:text-xs leading-tight"
+                      key={index}
+                    >
+                      {contact.type}: {contact.value}
+                    </i>
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
-
-          {/* Makati Office */}
-          <div className="space-y-0.5">
-            <Link
-              href={'https://www.google.com/maps'}
-              className="text-xs lg:text-sm underline hover:text-white transition-colors"
-            >
-              Makati Office
-            </Link>
-            <div className="flex flex-col xl:flex-row xl:justify-between gap-1">
-              <p className="text-[10px] lg:text-xs xl:text-sm max-w-md leading-tight">
-                Room 217 Universal Motor Corp. Bldg. 2232 Don Chino Roces Ave.,
-                Makati City, Philippines, 1233
-              </p>
-              <div className="flex flex-col gap-0">
-                {contactsMakati.map((contact, index) => (
-                  <i
-                    className="italic text-[10px] lg:text-xs whitespace-nowrap leading-tight"
-                    key={index}
-                  >
-                    {contact.label}: {contact.number}
-                  </i>
-                ))}
-              </div>
-            </div>
-          </div>
+          ))}
         </div>
 
         {/* Quick Links */}
@@ -169,14 +123,14 @@ const Footer = () => (
             Portals
           </h4>
           <ul className="flex flex-col gap-0">
-            {portals.map((portal, index) => (
+            {portals.map((portal) => (
               <motion.li
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 className="text-xs lg:text-sm hover:underline"
-                key={index}
+                key={portal.id}
               >
-                <Link href={portal.href}>{portal.label}</Link>
+                <Link href={portal.url}>{portal.name}</Link>
               </motion.li>
             ))}
           </ul>
@@ -188,14 +142,14 @@ const Footer = () => (
             Companies
           </h4>
           <ul className="flex flex-col gap-0">
-            {companies.map((company, index) => (
+            {companies.map((company) => (
               <motion.li
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 className="text-xs lg:text-sm whitespace-nowrap hover:underline"
-                key={index}
+                key={company.id}
               >
-                <Link href={company.href}>{company.label}</Link>
+                <Link href={company.website || '#'}>{company.name}</Link>
               </motion.li>
             ))}
           </ul>

@@ -583,12 +583,45 @@ export interface ApiFaqFaq extends Struct.CollectionTypeSchema {
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    isActive: Schema.Attribute.Boolean;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<'oneToMany', 'api::faq.faq'> &
       Schema.Attribute.Private;
     order: Schema.Attribute.Integer;
     publishedAt: Schema.Attribute.DateTime;
     question: Schema.Attribute.String;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
+export interface ApiHeroItemHeroItem extends Struct.CollectionTypeSchema {
+  collectionName: 'hero_items';
+  info: {
+    displayName: 'Hero Item';
+    pluralName: 'hero-items';
+    singularName: 'hero-item';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    description: Schema.Attribute.Text;
+    image: Schema.Attribute.Media<'images' | 'files' | 'videos' | 'audios'>;
+    isActive: Schema.Attribute.Boolean;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::hero-item.hero-item'
+    > &
+      Schema.Attribute.Private;
+    order: Schema.Attribute.Integer;
+    publishedAt: Schema.Attribute.DateTime;
+    title: Schema.Attribute.String;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -608,10 +641,10 @@ export interface ApiJobListingJobListing extends Struct.CollectionTypeSchema {
   attributes: {
     active: Schema.Attribute.Boolean;
     applicants: Schema.Attribute.Integer;
-    category: Schema.Attribute.String;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    department: Schema.Attribute.String;
     description: Schema.Attribute.Blocks;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
@@ -620,12 +653,13 @@ export interface ApiJobListingJobListing extends Struct.CollectionTypeSchema {
     > &
       Schema.Attribute.Private;
     location: Schema.Attribute.String;
+    position: Schema.Attribute.String;
     postedDate: Schema.Attribute.Date;
     publishedAt: Schema.Attribute.DateTime;
     requirements: Schema.Attribute.Blocks;
     responsibilities: Schema.Attribute.Blocks;
     salaryRange: Schema.Attribute.String;
-    title: Schema.Attribute.String;
+    slug: Schema.Attribute.UID<'position'> & Schema.Attribute.Required;
     type: Schema.Attribute.Enumeration<['Full Time', 'Part Time', 'Contract']>;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
@@ -665,6 +699,65 @@ export interface ApiNewsletterSubscriberNewsletterSubscriber
   };
 }
 
+export interface ApiOfficeOffice extends Struct.CollectionTypeSchema {
+  collectionName: 'offices';
+  info: {
+    displayName: 'Office';
+    pluralName: 'offices';
+    singularName: 'office';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    address: Schema.Attribute.String;
+    contact: Schema.Attribute.Component<'contact.contact', true>;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::office.office'
+    > &
+      Schema.Attribute.Private;
+    name: Schema.Attribute.String;
+    publishedAt: Schema.Attribute.DateTime;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
+export interface ApiPortalPortal extends Struct.CollectionTypeSchema {
+  collectionName: 'portals';
+  info: {
+    displayName: 'Portal';
+    pluralName: 'portals';
+    singularName: 'portal';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::portal.portal'
+    > &
+      Schema.Attribute.Private;
+    name: Schema.Attribute.String;
+    publishedAt: Schema.Attribute.DateTime;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    url: Schema.Attribute.String;
+  };
+}
+
 export interface ApiProductProduct extends Struct.CollectionTypeSchema {
   collectionName: 'products';
   info: {
@@ -674,24 +767,25 @@ export interface ApiProductProduct extends Struct.CollectionTypeSchema {
     singularName: 'product';
   };
   options: {
-    draftAndPublish: true;
+    draftAndPublish: false;
   };
   attributes: {
+    brandName: Schema.Attribute.String & Schema.Attribute.Required;
+    category: Schema.Attribute.String & Schema.Attribute.Required;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
     Distributor: Schema.Attribute.Component<'distributor.distributor', false>;
     fdaId: Schema.Attribute.String;
-    featured: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     genericName: Schema.Attribute.String & Schema.Attribute.Required;
     images: Schema.Attribute.Media<'images', true> & Schema.Attribute.Required;
+    isFeatured: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
       'api::product.product'
     > &
       Schema.Attribute.Private;
-    name: Schema.Attribute.String & Schema.Attribute.Required;
     price: Schema.Attribute.Decimal;
     productDetails: Schema.Attribute.Component<
       'product.pharmaceutical-detail',
@@ -699,8 +793,7 @@ export interface ApiProductProduct extends Struct.CollectionTypeSchema {
     >;
     publishedAt: Schema.Attribute.DateTime;
     size: Schema.Attribute.String;
-    slug: Schema.Attribute.UID<'name'>;
-    type: Schema.Attribute.String & Schema.Attribute.Required;
+    slug: Schema.Attribute.UID;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -773,6 +866,35 @@ export interface ApiSocialSocial extends Struct.CollectionTypeSchema {
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
     url: Schema.Attribute.String;
+  };
+}
+
+export interface ApiZyreBenefitZyreBenefit extends Struct.CollectionTypeSchema {
+  collectionName: 'zyre_benefits';
+  info: {
+    displayName: 'Zyre Benefit';
+    pluralName: 'zyre-benefits';
+    singularName: 'zyre-benefit';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    benefits: Schema.Attribute.Component<'benefit.benefits', true>;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    department: Schema.Attribute.String;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::zyre-benefit.zyre-benefit'
+    > &
+      Schema.Attribute.Private;
+    publishedAt: Schema.Attribute.DateTime;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
   };
 }
 
@@ -1322,11 +1444,15 @@ declare module '@strapi/strapi' {
       'api::business-partner.business-partner': ApiBusinessPartnerBusinessPartner;
       'api::company-gallery.company-gallery': ApiCompanyGalleryCompanyGallery;
       'api::faq.faq': ApiFaqFaq;
+      'api::hero-item.hero-item': ApiHeroItemHeroItem;
       'api::job-listing.job-listing': ApiJobListingJobListing;
       'api::newsletter-subscriber.newsletter-subscriber': ApiNewsletterSubscriberNewsletterSubscriber;
+      'api::office.office': ApiOfficeOffice;
+      'api::portal.portal': ApiPortalPortal;
       'api::product.product': ApiProductProduct;
       'api::sister-company.sister-company': ApiSisterCompanySisterCompany;
       'api::social.social': ApiSocialSocial;
+      'api::zyre-benefit.zyre-benefit': ApiZyreBenefitZyreBenefit;
       'api::zyre-timeline.zyre-timeline': ApiZyreTimelineZyreTimeline;
       'plugin::content-releases.release': PluginContentReleasesRelease;
       'plugin::content-releases.release-action': PluginContentReleasesReleaseAction;

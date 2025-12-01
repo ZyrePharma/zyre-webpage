@@ -9,83 +9,12 @@ interface FAQ {
   answer: string;
 }
 
-const FAQsPage: React.FC = () => {
-  const [openFaq, setOpenFaq] = useState<number | null>(null);
+interface FAQsPageProps {
+  faqs: FAQ[];
+}
 
-  const faqs: FAQ[] = [
-    {
-      id: 1,
-      question: 'I would like to collaborate',
-      answer:
-        "We're always looking for collaboration opportunities. Please fill out our contact form with details, and we'll be in touch!",
-    },
-    {
-      id: 2,
-      question: 'I am interested in your products',
-      answer:
-        "Our product catalog spans multiple industries. Let us know which you're interested in, and we'll provide tailored details.",
-    },
-    {
-      id: 3,
-      question: 'I want to join your company',
-      answer:
-        "We're always hiring! Check our careers page or send your resume through the contact form.",
-    },
-    {
-      id: 4,
-      question: 'I am interested in your services',
-      answer:
-        'We offer solutions for businesses of all sizes. Get in touch so we can recommend the right services for you.',
-    },
-    {
-      id: 5,
-      question: 'How can I track my order?',
-      answer:
-        "Once your order is shipped, you'll receive a tracking number via email. You can use this number to track your package directly on the courier's website.",
-    },
-    {
-      id: 6,
-      question: 'Do you offer international shipping?',
-      answer:
-        'Yes, we offer international shipping to most countries. Please check our shipping policy or contact us to confirm if we ship to your location.',
-    },
-    {
-      id: 7,
-      question: 'What payment methods do you accept?',
-      answer:
-        'We accept various payment methods, including credit cards (Visa, MasterCard, etc.), PayPal, and bank transfers.',
-    },
-    {
-      id: 8,
-      question: 'Can I change or cancel my order after it has been placed?',
-      answer:
-        'Orders can only be changed or canceled within 30 minutes of placement. Please contact our support team immediately if you wish to make any changes.',
-    },
-    {
-      id: 9,
-      question: 'How do I reset my account password?',
-      answer:
-        "To reset your password, click on the 'Forgot Password' link on the login page. You'll receive an email with instructions to reset your password.",
-    },
-    {
-      id: 10,
-      question: 'What is your return policy?',
-      answer:
-        'We offer a 30-day return policy on most items. Please visit our return policy page or contact our support team for further details.',
-    },
-    {
-      id: 11,
-      question: 'Do you offer gift cards?',
-      answer:
-        'Yes, we offer gift cards in various denominations. You can purchase them on our website or at any of our retail locations.',
-    },
-    {
-      id: 12,
-      question: 'What should I do if I received a damaged item?',
-      answer:
-        "If you receive a damaged item, please contact our customer support team within 48 hours of receiving your order. We'll assist you with a replacement or refund.",
-    },
-  ];
+const FAQsPage: React.FC<FAQsPageProps> = ({ faqs }) => {
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   // Split FAQs into two arrays for the two columns
   const leftColumnFaqs = faqs.filter((_, index) => index % 2 === 0);

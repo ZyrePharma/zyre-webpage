@@ -3,7 +3,7 @@ export interface Product {
   id: string;
   name: string;
   genericName: string;
-  type: string;
+  category: string;
   size: string;
   description: string;
   image: string;
@@ -32,12 +32,12 @@ export interface UIState {
 export interface ProductCardProps {
   id: string;
   name: string;
-  image: string;
+  images: string[]; // Changed from single image to array of images
   size: string;
   fdaId: string;
   genericName: string;
   description: string;
-  type: string;
+  category: string;
   price?: number;
 }
 
@@ -89,3 +89,61 @@ export interface AnimationVariants {
   hover?: object;
   tap?: object;
 }
+
+// Footer types
+export interface Contact {
+  type: string;
+  value: string;
+}
+
+export interface Office {
+  id: number;
+  name: string;
+  address: string;
+  contact: Contact[];
+  mapUrl?: string;
+}
+
+export interface Portal {
+  id: number;
+  name: string;
+  url: string;
+}
+
+export interface SisterCompany {
+  id: number;
+  name: string;
+  website?: string;
+}
+
+// Careers types
+export interface Benefit {
+  name: string;
+  icon?: string;
+  subtext?: string;
+}
+
+export interface ZyreBenefit {
+  id: number;
+  department: string;
+  benefits: Benefit[];
+}
+
+export interface JobListing {
+  id: string;
+  documentId: string;
+  slug: string;
+  position: string;
+  type: 'Full Time' | 'Part Time' | 'Contract';
+  department: string;
+  location: string;
+  vacancies: number;
+  salaryRange: string;
+  description?: string;
+  requirements?: string[];
+  responsibilities?: string[];
+  postedDate: string;
+  applicants: number;
+  active: boolean;
+}
+

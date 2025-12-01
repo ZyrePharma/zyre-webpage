@@ -8,11 +8,11 @@
     "description": "Pharmaceutical products with detailed information"
   },
   "options": {
-    "draftAndPublish": true
+    "draftAndPublish": false
   },
   "pluginOptions": {},
   "attributes": {
-    "name": {
+    "brandName": {
       "type": "string",
       "required": true
     },
@@ -20,7 +20,7 @@
       "type": "string",
       "required": true
     },
-    "type": {
+    "category": {
       "type": "string",
       "required": true
     },
@@ -41,13 +41,12 @@
     "price": {
       "type": "decimal"
     },
-    "featured": {
+    "isFeatured": {
       "type": "boolean",
       "default": false
     },
     "slug": {
-      "type": "uid",
-      "targetField": "name"
+      "type": "uid"
     },
     "productDetails": {
       "type": "component",

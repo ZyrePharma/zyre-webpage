@@ -44,3 +44,31 @@ body {
 .perspective-1000 {
   perspective: 1000px;
 }
+
+/* Custom Scrollbar Styles */
+/* For Webkit browsers (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-zyre-blue);
+  border-radius: 10px;
+  border: 2px solid #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-blue-700);
+}
+
+/* For Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-zyre-blue) #f1f1f1;
+}

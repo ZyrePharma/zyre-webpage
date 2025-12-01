@@ -222,7 +222,7 @@ const Navbar = () => {
                 transition={{ delay: index * 0.1, duration: 0.3 }}
                 className="relative"
               >
-                <Link href={link.href}>
+                <Link href={link.href} prefetch={true}>
                   <motion.div
                     className="relative px-6 py-3 cursor-pointer overflow-visible"
                     whileHover={{ scale: 1.02 }}
@@ -281,7 +281,7 @@ const Navbar = () => {
                 transition={{ delay: index * 0.08, duration: 0.3 }}
                 className="relative"
               >
-                <Link href={link.href}>
+                <Link href={link.href} prefetch={true}>
                   <motion.div
                     className="relative px-4 py-2.5 cursor-pointer overflow-visible"
                     whileHover={{ scale: 1.02 }}
@@ -370,7 +370,7 @@ const Navbar = () => {
                       onClick={() => setIsOpen(false)}
                       className="w-full max-w-xs"
                     >
-                      <Link href={link.href}>
+                      <Link href={link.href} prefetch={true}>
                         <motion.div
                           className="relative px-6 py-3.5 rounded-full cursor-pointer overflow-visible group"
                           whileTap={{ scale: 0.96 }}
@@ -408,8 +408,8 @@ const Navbar = () => {
 
                           <span
                             className={`relative z-10 text-lg font-semibold text-center block transition-colors duration-300 ${isActive
-                                ? 'text-white drop-shadow-md'
-                                : 'text-primary group-hover:text-primary'
+                              ? 'text-white drop-shadow-md'
+                              : 'text-primary group-hover:text-primary'
                               }`}
                           >
                             {link.label}

@@ -1,0 +1,23 @@
+{
+  "kind": "collectionType",
+  "collectionName": "zyre_benefits",
+  "info": {
+    "singularName": "zyre-benefit",
+    "pluralName": "zyre-benefits",
+    "displayName": "Zyre Benefit"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "department": {
+      "type": "string"
+    },
+    "benefits": {
+      "type": "component",
+      "component": "benefit.benefits",
+      "repeatable": true
+    }
+  }
+}

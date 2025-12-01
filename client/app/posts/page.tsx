@@ -251,6 +251,26 @@ const PostsPage = () => {
         </div>
       </div>
 
+      {/* Articles Header Section */}
+      <div className="bg-white py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center"
+          >
+            <h2 className="text-3xl md:text-4xl font-bold text-primary mb-4">
+              Our Articles
+            </h2>
+            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+              Explore our collection of insightful articles covering pharmaceutical innovation,
+              industry trends, regulatory updates, and healthcare advancements.
+            </p>
+          </motion.div>
+        </div>
+      </div>
+
       {/* Category Filter */}
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">

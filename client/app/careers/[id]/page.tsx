@@ -1,465 +1,165 @@
-'use client';
+import { getStrapiCollection, getStrapiEntry } from '../../../lib/strapi'
+import { JobListing } from '../../types';
+import JobDetailsClient from './JobDetailsClient';
+import { notFound } from 'next/navigation';
 
-import React, { useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import Link from 'next/link';
-import {
-  MdLocationOn,
-  MdWork,
-  MdAttachMoney,
-  MdPeople,
-  MdCalendarToday,
-  MdArrowBack,
-  MdDescription,
-  MdEmail,
-  MdPhone,
-  MdPerson,
-  MdUploadFile,
-} from 'react-icons/md';
-import { motion } from 'framer-motion';
-import Newsletter from '../../components/Newsletter';
-
-interface Job {
+interface StrapiJobListing {
   id: number;
-  title: string;
-  type: string;
-  category: string;
+  documentId: string;
+  slug: string;
+  position: string;
+  type: 'Full Time' | 'Part Time' | 'Contract';
+  department: string;
   location: string;
   vacancies: number;
   salaryRange: string;
-  postedAgo: string;
+  description?: any;
+  requirements?: any;
+  responsibilities?: any;
+  postedDate: string;
   applicants: number;
-  description?: string;
-  requirements?: string[];
-  responsibilities?: string[];
+  active: boolean;
 }
 
-interface ApplicationFormData {
-  name: string;
-  email: string;
-  phone: string;
-  coverLetter: string;
-  resume: File | null;
+// Helper function to convert blocks to string array
+function blocksToStringArray(blocks: any): string[] {
+  if (!blocks || !Array.isArray(blocks)) return [];
+
+  return blocks
+    .map((block: any) => {
+      if (block.type === 'paragraph' && block.children) {
+        return block.children
+          .map((child: any) => child.text || '')
+          .join('')
+          .trim();
+      }
+      if (block.type === 'list' && block.children) {
+        return block.children
+          .map((item: any) => {
+            if (item.children) {
+              return item.children
+                .map((child: any) => child.text || '')
+                .join('')
+                .trim();
+            }
+            return '';
+          })
+          .filter((text: string) => text.length > 0);
+      }
+      return '';
+    })
+    .flat()
+    .filter((text: string) => text.length > 0);
 }
 
-// Mock job data - in a real app, this would come from an API
-const getJobById = (id: string): Job | null => {
-  const jobs: Job[] = [
-    {
-      id: 1,
-      title: 'Pharmaceutical Sales Representative',
-      type: 'Full Time',
-      category: 'Sales & Marketing',
-      location: 'Laoag City, Ilocos Norte',
-      vacancies: 1,
-      salaryRange: '₱14,000.00 - ₱16,000.00',
-      postedAgo: '2 months ago',
-      applicants: 0,
-      description:
-        'We are seeking a dynamic Pharmaceutical Sales Representative to join our team in Laoag City. The ideal candidate will be responsible for promoting and selling pharmaceutical products to healthcare professionals, building strong relationships, and achieving sales targets.',
-      responsibilities: [
-        'Promote pharmaceutical products to healthcare professionals',
-        'Build and maintain relationships with doctors, pharmacists, and hospitals',
-        'Achieve sales targets and KPIs',
-        'Conduct product presentations and demonstrations',
-        'Monitor market trends and competitor activities',
-        'Provide excellent customer service and support',
-      ],
-      requirements: [
-        "Bachelor's degree in Pharmacy, Medicine, or related field",
-        'Previous sales experience in pharmaceutical industry preferred',
-        'Excellent communication and presentation skills',
-        'Strong relationship-building abilities',
-        "Valid driver's license and vehicle",
-        'Willing to travel within assigned territory',
-      ],
-    },
-    {
-      id: 2,
-      title: 'Medical Sales Specialist',
-      type: 'Full Time',
-      category: 'Sales & Marketing',
-      location: 'Cebu City, Cebu',
-      vacancies: 2,
-      salaryRange: '₱18,000.00 - ₱20,000.00',
-      postedAgo: '1 month ago',
-      applicants: 5,
-      description:
-        'Join our team as a Medical Sales Specialist in Cebu City. You will be responsible for promoting medical devices and pharmaceutical products to healthcare institutions and professionals, ensuring customer satisfaction and achieving sales goals.',
-      responsibilities: [
-        'Promote medical devices and pharmaceutical products',
-        'Visit hospitals and healthcare institutions',
-        'Provide product training and support',
-        'Achieve monthly sales quotas',
-        'Participate in medical conferences and events',
-      ],
-      requirements: [
-        "Bachelor's degree in Medical Technology, Nursing, or related field",
-        '1-2 years pharmaceutical sales experience',
-        'Knowledge of medical products and terminology',
-        'Strong negotiation skills',
-        'Ability to work independently',
-      ],
-    },
-  ];
+// Helper function to convert blocks to string
+function blocksToString(blocks: any): string {
+  if (!blocks || !Array.isArray(blocks)) return '';
 
-  const job = jobs.find((j) => j.id === parseInt(id));
-  return job || jobs[0]; // Return first job as default if not found
-};
+  return blocks
+    .map((block: any) => {
+      if (block.type === 'paragraph' && block.children) {
+        return block.children
+          .map((child: any) => child.text || '')
+          .join('');
+      }
+      return '';
+    })
+    .join('\n')
+    .trim();
+}
 
-const JobDetailsPage = () => {
-  const params = useParams();
-  const router = useRouter();
-  const jobId = params?.id as string;
+async function getJob(slugOrId: string): Promise<JobListing | null> {
+  try {
+    // 1. Try to fetch by slug first
+    const slugResponse = await getStrapiCollection<StrapiJobListing>('job-listings', {
+      filters: {
+        slug: {
+          $eq: slugOrId,
+        },
+      },
+      populate: '*',
+      publicationState: 'live',
+    }, {
+      next: { revalidate: 1800 },
+    });
 
-  const [job] = useState<Job | null>(getJobById(jobId));
-  const [formData, setFormData] = useState<ApplicationFormData>({
-    name: '',
-    email: '',
-    phone: '',
-    coverLetter: '',
-    resume: null,
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState<
-    'idle' | 'success' | 'error'
-  >('idle');
+    if (slugResponse.data && slugResponse.data.length > 0) {
+      const item = slugResponse.data[0] as any;
+      return transformJobData(item);
+    }
+
+    // 2. If not found by slug, try to fetch by documentId
+    // This handles cases where we might still be using IDs or for backward compatibility
+    try {
+      const idResponse = await getStrapiEntry<StrapiJobListing>('job-listings', slugOrId, '*', {
+        next: { revalidate: 1800 },
+      });
+
+      if (idResponse.data) {
+        const item = idResponse.data as any;
+        return transformJobData(item);
+      }
+    } catch (e) {
+      // Ignore error if fetching by ID fails, it just means it wasn't an ID
+    }
+
+    return null;
+  } catch (error) {
+    console.error('Error fetching job:', error);
+    return null;
+  }
+}
+
+function transformJobData(item: any): JobListing {
+  return {
+    id: item.id.toString(),
+    documentId: item.documentId,
+    slug: item.slug || '',
+    position: item.position || '',
+    type: item.type || 'Full Time',
+    department: item.department || '',
+    location: item.location || '',
+    vacancies: item.vacancies || 0,
+    salaryRange: item.salaryRange || '',
+    description: blocksToString(item.description),
+    requirements: blocksToStringArray(item.requirements),
+    responsibilities: blocksToStringArray(item.responsibilities),
+    postedDate: item.postedDate || new Date().toISOString(),
+    applicants: item.applicants || 0,
+    active: item.active ?? true,
+  };
+}
+
+export default async function JobDetailsPage({ params }: { params: { id: string } }) {
+  const job = await getJob(params.id);
 
   if (!job) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-primary mb-4">
-            Job Not Found
-          </h1>
-          <Link href="/careers" className="text-primary hover:underline">
-            Back to Careers
-          </Link>
-        </div>
-      </div>
-    );
+    notFound();
   }
 
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
+  return <JobDetailsClient job={job} />;
+}
+
+// Generate static params for all active jobs
+export async function generateStaticParams() {
+  try {
+    const response = await getStrapiCollection<StrapiJobListing>('job-listings', {
+      filters: {
+        $or: [
+          { active: { $eq: true } },
+          { active: { $null: true } },
+        ],
+      },
+      fields: ['slug'],
+      publicationState: 'live',
+    });
+
+    return response.data.map((job: any) => ({
+      id: job.slug,
     }));
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setFormData((prev) => ({
-        ...prev,
-        resume: file,
-      }));
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-
-    setIsSubmitting(false);
-    setSubmitStatus('success');
-
-    // Reset form after success
-    setTimeout(() => {
-      setFormData({
-        name: '',
-        email: '',
-        phone: '',
-        coverLetter: '',
-        resume: null,
-      });
-      setSubmitStatus('idle');
-    }, 3000);
-  };
-
-  const animationVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 },
-    exit: { opacity: 0, y: -20 },
-  };
-
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* Header with Back Button */}
-        <motion.div
-          initial="hidden"
-          animate="visible"
-          variants={animationVariants}
-          className="mb-6"
-        >
-          <button
-            onClick={() => router.push('/careers')}
-            className="flex items-center gap-2 text-primary hover:text-secondary transition-colors mb-4"
-          >
-            <MdArrowBack className="text-xl" />
-            <span>Back to Careers</span>
-          </button>
-        </motion.div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Column - Job Details */}
-          <div className="lg:col-span-2">
-            <motion.div
-              initial="hidden"
-              animate="visible"
-              variants={animationVariants}
-              transition={{ delay: 0.1 }}
-              className="bg-white rounded-lg shadow-md p-6 mb-6"
-            >
-              {/* Job Title and Basic Info */}
-              <div className="mb-6">
-                <div className="flex flex-wrap items-center gap-3 mb-4">
-                  <h1 className="text-3xl font-bold text-primary">
-                    {job.title}
-                  </h1>
-                  <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-semibold">
-                    {job.type}
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="flex items-center gap-2 text-gray-700">
-                    <MdLocationOn className="text-primary text-xl" />
-                    <span>{job.location}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-gray-700">
-                    <MdWork className="text-primary text-xl" />
-                    <span>{job.category}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-gray-700">
-                    <MdAttachMoney className="text-primary text-xl" />
-                    <span className="font-semibold text-primary">
-                      {job.salaryRange}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2 text-gray-700">
-                    <MdPeople className="text-primary text-xl" />
-                    <span>{job.vacancies} Vacancy/job</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-gray-700">
-                    <MdCalendarToday className="text-primary text-xl" />
-                    <span>Posted {job.postedAgo}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-gray-700">
-                    <MdPeople className="text-primary text-xl" />
-                    <span>{job.applicants} Applicant/s</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="border-t pt-6">
-                {job.description && (
-                  <div className="mb-6">
-                    <h2 className="text-xl font-bold text-primary mb-3 flex items-center gap-2">
-                      <MdDescription className="text-2xl" />
-                      Job Description
-                    </h2>
-                    <p className="text-gray-700 leading-relaxed">
-                      {job.description}
-                    </p>
-                  </div>
-                )}
-
-                {job.responsibilities && job.responsibilities.length > 0 && (
-                  <div className="mb-6">
-                    <h2 className="text-xl font-bold text-primary mb-3">
-                      Responsibilities
-                    </h2>
-                    <ul className="space-y-2">
-                      {job.responsibilities.map((resp, index) => (
-                        <li
-                          key={index}
-                          className="flex items-start gap-2 text-gray-700"
-                        >
-                          <span className="text-primary mt-1">•</span>
-                          <span>{resp}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {job.requirements && job.requirements.length > 0 && (
-                  <div>
-                    <h2 className="text-xl font-bold text-primary mb-3">
-                      Requirements
-                    </h2>
-                    <ul className="space-y-2">
-                      {job.requirements.map((req, index) => (
-                        <li
-                          key={index}
-                          className="flex items-start gap-2 text-gray-700"
-                        >
-                          <span className="text-primary mt-1">•</span>
-                          <span>{req}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
-            </motion.div>
-          </div>
-
-          {/* Right Column - Application Form */}
-          <div className="lg:col-span-1">
-            <motion.div
-              initial="hidden"
-              animate="visible"
-              variants={animationVariants}
-              transition={{ delay: 0.2 }}
-              className="bg-white rounded-lg shadow-md p-6 sticky top-4"
-            >
-              <h2 className="text-2xl font-bold text-primary mb-6">
-                Apply for this Position
-              </h2>
-
-              {submitStatus === 'success' ? (
-                <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
-                  <div className="text-green-600 mb-2">✓</div>
-                  <p className="text-green-700 font-semibold">
-                    Application Submitted Successfully!
-                  </p>
-                  <p className="text-sm text-gray-600 mt-2">
-                    We&apos;ll review your application and get back to you soon.
-                  </p>
-                </div>
-              ) : (
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div>
-                    <label
-                      htmlFor="name"
-                      className="block text-sm font-medium text-gray-700 mb-2"
-                    >
-                      <MdPerson className="inline mr-1" />
-                      Full Name *
-                    </label>
-                    <input
-                      type="text"
-                      id="name"
-                      name="name"
-                      required
-                      value={formData.name}
-                      onChange={handleInputChange}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                      placeholder="John Doe"
-                    />
-                  </div>
-
-                  <div>
-                    <label
-                      htmlFor="email"
-                      className="block text-sm font-medium text-gray-700 mb-2"
-                    >
-                      <MdEmail className="inline mr-1" />
-                      Email Address *
-                    </label>
-                    <input
-                      type="email"
-                      id="email"
-                      name="email"
-                      required
-                      value={formData.email}
-                      onChange={handleInputChange}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                      placeholder="john.doe@example.com"
-                    />
-                  </div>
-
-                  <div>
-                    <label
-                      htmlFor="phone"
-                      className="block text-sm font-medium text-gray-700 mb-2"
-                    >
-                      <MdPhone className="inline mr-1" />
-                      Phone Number *
-                    </label>
-                    <input
-                      type="tel"
-                      id="phone"
-                      name="phone"
-                      required
-                      value={formData.phone}
-                      onChange={handleInputChange}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                      placeholder="+63 9XX XXX XXXX"
-                    />
-                  </div>
-
-                  <div>
-                    <label
-                      htmlFor="resume"
-                      className="block text-sm font-medium text-gray-700 mb-2"
-                    >
-                      <MdUploadFile className="inline mr-1" />
-                      Resume/CV *
-                    </label>
-                    <input
-                      type="file"
-                      id="resume"
-                      name="resume"
-                      required
-                      accept=".pdf,.doc,.docx"
-                      onChange={handleFileChange}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-secondary"
-                    />
-                    {formData.resume && (
-                      <p className="text-sm text-gray-600 mt-1">
-                        {formData.resume.name}
-                      </p>
-                    )}
-                  </div>
-
-                  <div>
-                    <label
-                      htmlFor="coverLetter"
-                      className="block text-sm font-medium text-gray-700 mb-2"
-                    >
-                      Cover Letter
-                    </label>
-                    <textarea
-                      id="coverLetter"
-                      name="coverLetter"
-                      rows={5}
-                      value={formData.coverLetter}
-                      onChange={handleInputChange}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
-                      placeholder="Tell us why you're a great fit for this position..."
-                    />
-                  </div>
-
-                  <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="w-full bg-primary text-white py-3 px-4 rounded-lg font-semibold hover:bg-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {isSubmitting ? 'Submitting...' : 'Submit Application'}
-                  </button>
-                </form>
-              )}
-            </motion.div>
-          </div>
-        </div>
-
-        {/* Newsletter Section */}
-        <div className="mt-12">
-          <Newsletter />
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default JobDetailsPage;
+  } catch (error) {
+    console.error('Error generating static params:', error);
+    return [];
+  }
+}
