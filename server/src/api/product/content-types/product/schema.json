@@ -48,6 +48,9 @@
     "slug": {
       "type": "uid"
     },
+    "isRX": {
+      "type": "boolean"
+    },
     "productDetails": {
       "type": "component",
       "component": "product.pharmaceutical-detail",

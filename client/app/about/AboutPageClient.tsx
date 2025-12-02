@@ -157,14 +157,6 @@ const AboutPageClient: React.FC<AboutPageClientProps> = ({
                                 </motion.p>
                             )}
 
-                            {/* Decorative bottom accent */}
-                            <motion.div
-                                initial={{ scaleX: 0 }}
-                                whileInView={{ scaleX: 1 }}
-                                viewport={{ once: true, amount: 0.3 }}
-                                transition={{ duration: 0.8, delay: 0.6 }}
-                                className="w-full h-1 bg-gradient-to-r from-primary via-[var(--color-zyre-red)] to-primary mt-8 origin-left"
-                            ></motion.div>
                         </div>
                     </motion.div>
                 </div>
@@ -217,7 +209,7 @@ const AboutPageClient: React.FC<AboutPageClientProps> = ({
                                     animate="animate"
                                     custom={index}
                                     whileHover="hover"
-                                    className="w-32 h-32 bg-white rounded-full flex items-center justify-center mb-6 mx-auto shadow-lg overflow-hidden border-2 border-primary/20"
+                                    className="w-40 h-40 bg-white flex items-center justify-center mb-6 mx-auto overflow-hidden"
                                 >
                                     {company.logo ? (
                                         <Image
@@ -225,7 +217,7 @@ const AboutPageClient: React.FC<AboutPageClientProps> = ({
                                             alt={`${company.name} logo`}
                                             width={120}
                                             height={120}
-                                            className="w-full h-full object-contain p-3"
+                                            className="w-full h-full object-contain p-1"
                                         />
                                     ) : (
                                         <div className="w-full h-full bg-gradient-to-br from-primary to-[var(--color-zyre-red)] flex items-center justify-center text-white text-3xl font-bold">

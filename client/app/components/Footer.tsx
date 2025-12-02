@@ -32,14 +32,15 @@ const legalLinks = [
 ];
 
 const Footer: React.FC<FooterProps> = ({ offices, portals, companies }) => (
-  <footer className="bg-secondary w-full flex flex-col lg:flex-row lg:items-end border">
+  <footer className="bg-secondary w-full flex flex-col lg:flex-row lg:items-center border">
     {/* Logo Section - Hidden on mobile, visible on lg+ */}
-    <div className="hidden lg:flex items-end ml-2 xl:ml-4">
+    <div className="hidden lg:flex items-center ml-2 xl:ml-4">
       <motion.div
         initial={{ y: 50, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.8 }}
-        className="relative lg:w-56 xl:w-64 bg-white rounded-t-full flex flex-col justify-center items-center gap-1 py-3 px-4"
+        whileInView={{ y: 0, opacity: 1 }}
+        viewport={{ once: true, amount: 0.3 }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+        className="relative lg:w-44 xl:w-48 aspect-square bg-white rounded-full flex flex-col justify-center items-center gap-1 p-4"
       >
         <div className="relative w-full max-w-[80px] aspect-square">
           <Image
@@ -51,14 +52,12 @@ const Footer: React.FC<FooterProps> = ({ offices, portals, companies }) => (
             priority
           />
         </div>
-        <i className="block text-[10px] xl:text-[11px] text-primary text-center leading-tight">
+        <i className="block text-[10px] xl:text-[11px] font-bold text-primary text-center leading-tight">
           ZYRE PHARMACEUTICALS CORPORATION
         </i>
-        <i className="block text-[10px] xl:text-[11px] text-primary leading-tight">
+        <i className="block text-[10px] xl:text-[11px] font-semi-bold text-zyre-red leading-tight">
           Because Life Matters
         </i>
-        <div className="absolute -top-3 xl:-top-4 right-6 bg-white w-3 xl:w-4 h-3 xl:h-4 rounded-full"></div>
-        <div className="absolute top-1 right-0 bg-white w-6 xl:w-8 h-6 xl:h-8 rounded-full"></div>
       </motion.div>
     </div>
 
@@ -66,20 +65,33 @@ const Footer: React.FC<FooterProps> = ({ offices, portals, companies }) => (
     <div className="w-full lg:px-6 xl:px-8">
       <div className="flex flex-col xl:flex-row justify-between gap-3 lg:gap-4 p-4 lg:p-6">
         {/* Offices Section */}
-        <div className="flex flex-col space-y-2">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.2 }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className="flex flex-col space-y-2"
+        >
           <h4 className="font-bold uppercase text-sm lg:text-base xl:text-lg">
             Offices
           </h4>
 
-          {offices.map((office) => (
-            <div key={office.id} className="space-y-0.5">
+          {offices.map((office, index) => (
+            <motion.div
+              key={office.id}
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, amount: 0.2 }}
+              transition={{ duration: 0.5, delay: 0.2 + index * 0.1 }}
+              className="space-y-0.5"
+            >
               <Link
                 href={office.mapUrl || 'https://www.google.com/maps'}
                 className="text-xs lg:text-sm underline hover:text-white transition-colors"
               >
                 {office.name}
               </Link>
-              <div className="flex flex-col xl:flex-row xl:justify-between gap-1">
+              <div className="flex flex-col gap-1">
                 <p className="text-[10px] lg:text-xs xl:text-sm max-w-md leading-tight">
                   {office.address}
                 </p>
@@ -94,77 +106,119 @@ const Footer: React.FC<FooterProps> = ({ offices, portals, companies }) => (
                   ))}
                 </div>
               </div>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
 
-        {/* Quick Links */}
-        <div>
-          <h4 className="font-bold text-sm lg:text-base xl:text-lg uppercase mb-1">
-            Quick Links
-          </h4>
-          <ul className="flex flex-col gap-0">
-            {navigationLinks.map((navLink, index) => (
-              <motion.li
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="text-xs lg:text-sm hover:underline"
-                key={index}
-              >
-                <Link href={navLink.href}>{navLink.label}</Link>
-              </motion.li>
-            ))}
-          </ul>
-        </div>
+        <div className="flex flex-col space-y-2">
 
-        {/* Portals */}
-        <div>
-          <h4 className="font-bold text-sm lg:text-base xl:text-lg uppercase mb-1">
-            Portals
-          </h4>
-          <ul className="flex flex-col gap-0">
-            {portals.map((portal) => (
-              <motion.li
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="text-xs lg:text-sm hover:underline"
-                key={portal.id}
-              >
-                <Link href={portal.url}>{portal.name}</Link>
-              </motion.li>
-            ))}
-          </ul>
-        </div>
+          <div className="flex justify-between flex-row space-y-2">
+            {/* Quick Links */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.2 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+            >
+              <h4 className="font-bold text-sm lg:text-base xl:text-lg uppercase mb-1">
+                Quick Links
+              </h4>
+              <ul className="flex flex-col gap-0">
+                {navigationLinks.map((navLink, index) => (
+                  <motion.li
+                    initial={{ opacity: 0, x: -10 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true, amount: 0.2 }}
+                    transition={{ duration: 0.4, delay: 0.3 + index * 0.05 }}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="text-xs lg:text-sm hover:underline"
+                    key={index}
+                  >
+                    <Link href={navLink.href}>{navLink.label}</Link>
+                  </motion.li>
+                ))}
+              </ul>
+            </motion.div>
 
-        {/* Companies */}
-        <div>
-          <h4 className="font-bold text-sm lg:text-base xl:text-lg uppercase mb-1">
-            Companies
-          </h4>
-          <ul className="flex flex-col gap-0">
-            {companies.map((company) => (
-              <motion.li
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="text-xs lg:text-sm whitespace-nowrap hover:underline"
-                key={company.id}
-              >
-                <Link href={company.website || '#'}>{company.name}</Link>
-              </motion.li>
-            ))}
-          </ul>
+            {/* Portals */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.2 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+            >
+              <h4 className="font-bold text-sm lg:text-base xl:text-lg uppercase mb-1">
+                Portals
+              </h4>
+              <ul className="flex flex-col gap-0">
+                {portals.map((portal, index) => (
+                  <motion.li
+                    initial={{ opacity: 0, x: -10 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true, amount: 0.2 }}
+                    transition={{ duration: 0.4, delay: 0.4 + index * 0.05 }}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="text-xs lg:text-sm hover:underline"
+                    key={portal.id}
+                  >
+                    <Link href={portal.url}>{portal.name}</Link>
+                  </motion.li>
+                ))}
+              </ul>
+            </motion.div>
+          </div>
+
+          {/* Companies */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+          >
+            <h4 className="font-bold text-sm lg:text-base xl:text-lg uppercase mb-1">
+              Companies
+            </h4>
+            <ul className="flex flex-col gap-0">
+              {companies.map((company, index) => (
+                <motion.li
+                  initial={{ opacity: 0, x: -10 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true, amount: 0.2 }}
+                  transition={{ duration: 0.4, delay: 0.5 + index * 0.05 }}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="text-xs lg:text-sm whitespace-nowrap hover:underline"
+                  key={company.id}
+                >
+                  <Link href={company.website || '#'}>{company.name}</Link>
+                </motion.li>
+              ))}
+            </ul>
+          </motion.div>
         </div>
       </div>
 
       {/* Copyright */}
-      <div className="flex flex-col md:flex-row justify-between items-center border-t border-white py-3 px-4 gap-3 md:gap-0">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.5 }}
+        transition={{ duration: 0.6, delay: 0.5 }}
+        className="flex flex-col md:flex-row justify-between items-center border-t border-white py-3 px-4 gap-3 md:gap-0"
+      >
         <div className="flex gap-3 order-2 md:order-1">
-          {socialLinks.map((social) => (
+          {socialLinks.map((social, index) => (
             <motion.a
               key={social.name}
               href={social.href}
               target="_blank"
               rel="noopener noreferrer"
+              initial={{ opacity: 0, scale: 0.5 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4, delay: 0.6 + index * 0.1 }}
               whileHover={{ scale: 1.1, y: -2 }}
               whileTap={{ scale: 0.95 }}
               className="text-white hover:text-primary transition-colors"
@@ -217,7 +271,7 @@ const Footer: React.FC<FooterProps> = ({ offices, portals, companies }) => (
         <p className="text-[10px] lg:text-xs order-1 md:order-2 text-center">
           &copy; 2025 Zyre Pharmaceuticals Corporation. All Rights Reserved.
         </p>
-      </div>
+      </motion.div>
     </div>
   </footer>
 );

@@ -217,14 +217,15 @@ const Navbar = () => {
             return (
               <motion.li
                 key={index}
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1, duration: 0.3 }}
+                initial={{ opacity: 0, y: -20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.5 }}
+                transition={{ delay: index * 0.1, duration: 0.5, ease: "easeOut" }}
                 className="relative"
               >
                 <Link href={link.href} prefetch={true}>
                   <motion.div
-                    className="relative px-6 py-3 cursor-pointer overflow-visible"
+                    className="relative px-6 py-2 cursor-pointer overflow-visible"
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.97 }}
                     transition={{ type: 'spring', stiffness: 400, damping: 17 }}
@@ -276,9 +277,10 @@ const Navbar = () => {
             return (
               <motion.li
                 key={index}
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.08, duration: 0.3 }}
+                initial={{ opacity: 0, y: -20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.5 }}
+                transition={{ delay: index * 0.08, duration: 0.5, ease: "easeOut" }}
                 className="relative"
               >
                 <Link href={link.href} prefetch={true}>
@@ -355,7 +357,7 @@ const Navbar = () => {
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', stiffness: 200, damping: 20 }}
-              className="fixed top-0 right-0 w-[85%] sm:w-[70%] md:w-[60%] lg:w-[50%] h-screen bg-white/95 backdrop-blur-md shadow-2xl flex flex-col items-center py-20 z-40 border-l border-gray-200"
+              className="fixed top-0 right-0 w-[85%] sm:w-[70%] md:w-[60%] h-screen bg-white/95 backdrop-blur-md shadow-2xl flex flex-col items-center py-20 z-40 border-l border-gray-200 lg:hidden"
             >
               <ul className="flex flex-col items-center space-y-8 w-full px-6">
                 {navLinks.map((link, index) => {

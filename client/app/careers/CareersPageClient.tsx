@@ -99,7 +99,6 @@ const CareersPageClient: React.FC<CareersPageClientProps> = ({ jobListings, bene
         applicants: job.applicants,
     }));
 
-    console.log('Transformed Jobs in Client:', transformedJobs);
 
     return (
         <div className="w-full min-h-screen px-4 py-8 max-w-7xl mx-auto">
@@ -132,7 +131,7 @@ const CareersPageClient: React.FC<CareersPageClientProps> = ({ jobListings, bene
                         We are looking for awesome people to join our team in making the
                         life of the Filipinos better through medicine. Sharing our common
                         vision and belief that{' '}
-                        <span className="font-bold text-primary">life matters</span>.
+                        <span className="font-bold text-zyre-red">life matters</span>.
                     </motion.p>
                     <motion.p
                         className="text-base md:text-lg text-gray-600 leading-relaxed"

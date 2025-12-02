@@ -567,6 +567,39 @@ export interface ApiCompanyGalleryCompanyGallery
   };
 }
 
+export interface ApiCompanyCompany extends Struct.SingleTypeSchema {
+  collectionName: 'companies';
+  info: {
+    displayName: 'Company';
+    pluralName: 'companies';
+    singularName: 'company';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    brandLine: Schema.Attribute.String;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::company.company'
+    > &
+      Schema.Attribute.Private;
+    logo: Schema.Attribute.Media<
+      'images' | 'files' | 'videos' | 'audios',
+      true
+    >;
+    name: Schema.Attribute.String;
+    publishedAt: Schema.Attribute.DateTime;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
 export interface ApiFaqFaq extends Struct.CollectionTypeSchema {
   collectionName: 'faqs';
   info: {
@@ -780,6 +813,7 @@ export interface ApiProductProduct extends Struct.CollectionTypeSchema {
     genericName: Schema.Attribute.String & Schema.Attribute.Required;
     images: Schema.Attribute.Media<'images', true> & Schema.Attribute.Required;
     isFeatured: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
+    isRX: Schema.Attribute.Boolean;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
@@ -1443,6 +1477,7 @@ declare module '@strapi/strapi' {
       'api::blog-post.blog-post': ApiBlogPostBlogPost;
       'api::business-partner.business-partner': ApiBusinessPartnerBusinessPartner;
       'api::company-gallery.company-gallery': ApiCompanyGalleryCompanyGallery;
+      'api::company.company': ApiCompanyCompany;
       'api::faq.faq': ApiFaqFaq;
       'api::hero-item.hero-item': ApiHeroItemHeroItem;
       'api::job-listing.job-listing': ApiJobListingJobListing;

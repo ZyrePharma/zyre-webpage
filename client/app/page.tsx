@@ -1,11 +1,13 @@
 import Carousel from './components/Carousel';
-import ContactPage from './components/Contact';
 import FAQs from './components/FAQs';
 import Hero from './components/Hero';
 import Slider from './components/Slider';
 import Newsletter from './components/Newsletter';
 import AnimatedSection from './components/AnimatedSection';
 import { getStrapiCollection, getStrapiURL } from '@/lib/strapi';
+import { geocodeAddresses } from '@/lib/geocoding';
+import ContactWithMap from './components/ContactWithMap';
+import { MapLocation } from './components/LocationMap';
 
 // ============================================================================
 // TypeScript Interfaces
@@ -55,6 +57,17 @@ interface FAQ {
     order: number;
     category: string | null;
     isActive: boolean;
+}
+
+interface StrapiOffice {
+    id: number;
+    documentId: string;
+    name: string;
+    address: string;
+    contact: Array<{
+        type: string;
+        value: string;
+    }>;
 }
 
 
@@ -132,6 +145,56 @@ async function fetchFAQs(): Promise<FAQ[]> {
     }
 }
 
+async function fetchOffices(): Promise<MapLocation[]> {
+    try {
+        const response = await getStrapiCollection<StrapiOffice>('offices', {
+            sort: ['name:asc'],
+            publicationState: 'live',
+        }, {
+            next: { revalidate: 3600 },
+        });
+
+        // Extract addresses for server-side geocoding (avoids CORS)
+        const addresses = response.data.map(office => office.address);
+
+        // Geocode all addresses server-side with error handling
+        let geocodedResults: (any | null)[] = [];
+        try {
+            geocodedResults = await geocodeAddresses(addresses);
+        } catch (geocodingError) {
+            console.error('Geocoding service failed, offices will be shown without map markers:', geocodingError);
+            // Return offices without coordinates if geocoding completely fails
+            return response.data.map(office => ({
+                name: office.name,
+                address: office.address,
+            }));
+        }
+
+        // Combine office data with geocoded coordinates
+        return response.data.map((office, index) => {
+            const geocoded = geocodedResults[index];
+
+            if (geocoded) {
+                return {
+                    lat: geocoded.lat,
+                    lng: geocoded.lng,
+                    name: office.name,
+                    address: office.address,
+                };
+            }
+
+            // If geocoding failed, return without coordinates
+            return {
+                name: office.name,
+                address: office.address,
+            };
+        });
+    } catch (error) {
+        console.error('Failed to fetch offices:', error);
+        return [];
+    }
+}
+
 
 function transformHeroData(items: HeroItem[], strapiUrl: string) {
     return items.map(item => ({
@@ -179,11 +242,12 @@ function transformSliderData(products: Product[], strapiUrl: string) {
 
 export default async function Home() {
     // Fetch all data in parallel for better performance
-    const [heroSlides, carouselImages, featuredProducts, faqs] = await Promise.all([
+    const [heroSlides, carouselImages, featuredProducts, faqs, offices] = await Promise.all([
         fetchHeroItems(),
         fetchCarouselImages(),
         fetchFeaturedProducts(),
-        fetchFAQs()
+        fetchFAQs(),
+        fetchOffices()
     ]);
 
     // Get Strapi URL for image transformations
@@ -214,7 +278,7 @@ export default async function Home() {
             </AnimatedSection>
 
             <AnimatedSection>
-                <ContactPage />
+                <ContactWithMap offices={offices} />
             </AnimatedSection>
 
             <AnimatedSection className="container mx-auto px-4 py-12">

@@ -140,14 +140,26 @@ async function getCareersData() {
     console.log('Transformed Job Listings:', jobListings);
 
     // Transform benefits
-    const benefits: ZyreBenefit[] = benefitsResponse.data.map((item: StrapiZyreBenefit) => ({
-      id: item.id,
-      department: item.department || '',
-      benefits: (item.benefits || []).map((benefit: StrapiBenefit) => ({
-        name: benefit.name || '',
-        icon: benefit.icon?.url ? benefit.icon.url.split('/').pop()?.split('.')[0] : undefined,
-      })),
-    }));
+    const benefits: ZyreBenefit[] = benefitsResponse.data.map((item: StrapiZyreBenefit) => {
+      return {
+        id: item.id,
+        department: item.department || '',
+        benefits: (item.benefits || []).map((benefit: StrapiBenefit) => {
+          const iconFileName = benefit.icon?.url ? benefit.icon.url.split('/').pop()?.split('.')[0] : undefined;
+
+          // Only include icon property if it has a value (for exactOptionalPropertyTypes)
+          const benefitObj: { name: string; icon?: string } = {
+            name: benefit.name || '',
+          };
+
+          if (iconFileName) {
+            benefitObj.icon = iconFileName;
+          }
+
+          return benefitObj;
+        }),
+      };
+    });
 
     console.log('Transformed Benefits:', benefits);
 

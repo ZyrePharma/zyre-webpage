@@ -1,8 +1,10 @@
+import Image from 'next/image';
+
 export default function Loading() {
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-red-50">
             <div className="text-center">
-                {/* Animated Logo Placeholder */}
+                {/* Animated Logo */}
                 <div className="relative w-32 h-32 mx-auto mb-8">
                     {/* Outer rotating ring */}
                     <div className="absolute inset-0 border-4 border-transparent border-t-zyre-blue border-r-zyre-red rounded-full animate-spin"></div>
@@ -10,9 +12,17 @@ export default function Loading() {
                     {/* Inner pulsing circle */}
                     <div className="absolute inset-4 bg-gradient-to-br from-zyre-blue to-zyre-red rounded-full opacity-20 animate-pulse"></div>
 
-                    {/* Center icon */}
-                    <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="w-12 h-12 bg-gradient-to-br from-zyre-blue to-zyre-red rounded-lg shadow-lg animate-pulse"></div>
+                    {/* Center Zyre Logo */}
+                    <div className="absolute inset-0 flex items-center justify-center p-6">
+                        <div className="relative w-full h-full">
+                            <Image
+                                src="/assets/zyre-logo.png"
+                                alt="Zyre Pharmaceuticals"
+                                fill
+                                className="object-contain animate-pulse"
+                                priority
+                            />
+                        </div>
                     </div>
                 </div>
 
