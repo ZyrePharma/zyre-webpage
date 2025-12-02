@@ -21,6 +21,11 @@
       "type": "component",
       "component": "contact.contact",
       "repeatable": true
+    },
+    "officeHours": {
+      "type": "component",
+      "component": "office-hour.office-hours",
+      "repeatable": true
     }
   }
 }

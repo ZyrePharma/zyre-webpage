@@ -1,0 +1,31 @@
+{
+  "collectionName": "components_office_hour_office_hours",
+  "info": {
+    "displayName": "Office Hours"
+  },
+  "options": {},
+  "attributes": {
+    "day": {
+      "type": "enumeration",
+      "enum": [
+        "Mon",
+        "Tue",
+        "Wed",
+        "Th",
+        "Fri",
+        "Sat",
+        "Sun"
+      ]
+    },
+    "open_time": {
+      "type": "time"
+    },
+    "close_time": {
+      "type": "time"
+    },
+    "isClosed": {
+      "type": "boolean"
+    }
+  },
+  "config": {}
+}

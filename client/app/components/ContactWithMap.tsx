@@ -31,19 +31,6 @@ const ContactWithMap = ({ offices }: ContactWithMapProps) => {
                     {/* Location Map */}
                     <div className="bg-white p-8 border border-gray-300 rounded-2xl shadow-xl h-full relative z-0">
                         <LocationMap locations={offices} />
-                        <div className="mt-6">
-                            <h2 className="text-xl font-semibold text-primary mb-2">
-                                Business Hours
-                            </h2>
-                            <div className="text-sm text-gray-500 grid grid-cols-2 gap-y-1">
-                                <span>Mon - Fri:</span>
-                                <span>9:00 AM - 6:00 PM</span>
-                                <span>Saturday:</span>
-                                <span>10:00 AM - 4:00 PM</span>
-                                <span>Sunday:</span>
-                                <span>Closed</span>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>

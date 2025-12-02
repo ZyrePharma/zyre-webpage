@@ -59,6 +59,13 @@ interface FAQ {
     isActive: boolean;
 }
 
+interface OfficeHour {
+    day: 'Mon' | 'Tue' | 'Wed' | 'Th' | 'Fri' | 'Sat' | 'Sun';
+    open_time: string;
+    close_time: string;
+    isClosed: boolean;
+}
+
 interface StrapiOffice {
     id: number;
     documentId: string;
@@ -68,6 +75,7 @@ interface StrapiOffice {
         type: string;
         value: string;
     }>;
+    officeHours?: OfficeHour[];
 }
 
 
@@ -150,6 +158,7 @@ async function fetchOffices(): Promise<MapLocation[]> {
         const response = await getStrapiCollection<StrapiOffice>('offices', {
             sort: ['name:asc'],
             publicationState: 'live',
+            populate: { officeHours: true },
         }, {
             next: { revalidate: 3600 },
         });
@@ -167,6 +176,7 @@ async function fetchOffices(): Promise<MapLocation[]> {
             return response.data.map(office => ({
                 name: office.name,
                 address: office.address,
+                ...(office.officeHours && { officeHours: office.officeHours }),
             }));
         }
 
@@ -180,6 +190,7 @@ async function fetchOffices(): Promise<MapLocation[]> {
                     lng: geocoded.lng,
                     name: office.name,
                     address: office.address,
+                    ...(office.officeHours && { officeHours: office.officeHours }),
                 };
             }
 
@@ -187,6 +198,7 @@ async function fetchOffices(): Promise<MapLocation[]> {
             return {
                 name: office.name,
                 address: office.address,
+                ...(office.officeHours && { officeHours: office.officeHours }),
             };
         });
     } catch (error) {
@@ -249,6 +261,8 @@ export default async function Home() {
         fetchFAQs(),
         fetchOffices()
     ]);
+
+    console.log("Offices:", offices)
 
     // Get Strapi URL for image transformations
     const strapiUrl = getStrapiURL();

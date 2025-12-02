@@ -36,6 +36,21 @@ export interface DistributorDistributor extends Struct.ComponentSchema {
   };
 }
 
+export interface OfficeHourOfficeHours extends Struct.ComponentSchema {
+  collectionName: 'components_office_hour_office_hours';
+  info: {
+    displayName: 'Office Hours';
+  };
+  attributes: {
+    close_time: Schema.Attribute.Time;
+    day: Schema.Attribute.Enumeration<
+      ['Mon', 'Tue', 'Wed', 'Th', 'Fri', 'Sat', 'Sun']
+    >;
+    isClosed: Schema.Attribute.Boolean;
+    open_time: Schema.Attribute.Time;
+  };
+}
+
 export interface ProductPharmaceuticalDetail extends Struct.ComponentSchema {
   collectionName: 'components_product_pharmaceutical_details';
   info: {
@@ -55,6 +70,7 @@ declare module '@strapi/strapi' {
       'benefit.benefits': BenefitBenefits;
       'contact.contact': ContactContact;
       'distributor.distributor': DistributorDistributor;
+      'office-hour.office-hours': OfficeHourOfficeHours;
       'product.pharmaceutical-detail': ProductPharmaceuticalDetail;
     }
   }
