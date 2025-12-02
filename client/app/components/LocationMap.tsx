@@ -42,6 +42,24 @@ interface LocationMapProps {
     className?: string;
 }
 
+// Utility function to convert 24-hour time to 12-hour format with AM/PM
+const convertTo12Hour = (time: string): string => {
+    // Handle cases like "9:00" or "09:00"
+    const [hourStr, minute] = time.split(':');
+    let hour = parseInt(hourStr, 10);
+
+    const period = hour >= 12 ? 'PM' : 'AM';
+
+    // Convert hour to 12-hour format
+    if (hour === 0) {
+        hour = 12; // Midnight
+    } else if (hour > 12) {
+        hour = hour - 12;
+    }
+
+    return `${hour}:${minute} ${period}`;
+};
+
 // Utility function to format office hours with smart day grouping
 const formatOfficeHours = (hours?: OfficeHour[]): string[] => {
     if (!hours || hours.length === 0) return [];
@@ -58,7 +76,7 @@ const formatOfficeHours = (hours?: OfficeHour[]): string[] => {
         const current = sortedHours[i];
         const timeStr = current.isClosed
             ? 'Closed'
-            : `${current.open_time} - ${current.close_time}`;
+            : `${convertTo12Hour(current.open_time)} - ${convertTo12Hour(current.close_time)}`;
 
         // Find consecutive days with the same hours
         let endIndex = i;
@@ -83,7 +101,6 @@ const formatOfficeHours = (hours?: OfficeHour[]): string[] => {
         i = endIndex + 1;
     }
 
-    console.log(formatted)
 
     return formatted;
 };
@@ -97,38 +114,18 @@ const LocationMap = ({ locations, className = '' }: LocationMapProps) => {
         setIsMounted(true);
     }, []);
 
-    // Filter locations that have coordinates (with safety check for undefined locations)
-    const validLocations = (locations || []).filter(
-        (loc) => loc.lat !== undefined && loc.lng !== undefined
-    ) as Array<{
-        lat: number;
-        lng: number;
-        name: string;
-        address: string;
-        officeHours?: OfficeHour[];
-    }>;
+    console.log("Locations:", locations)
 
-    // Calculate center point between all valid locations
-    // Default to Philippines center (12.8797° N, 121.7740° E) if no valid locations
-    const centerLat =
-        validLocations.length > 0
-            ? validLocations.reduce((sum, loc) => sum + loc.lat, 0) /
-            validLocations.length
-            : 12.8797; // Philippines latitude
-    const centerLng =
-        validLocations.length > 0
-            ? validLocations.reduce((sum, loc) => sum + loc.lng, 0) /
-            validLocations.length
-            : 121.7740; // Philippines longitude
-
-    // Default zoom level: 6 for Philippines view, 5 for multiple locations
-    const zoomLevel = validLocations.length === 0 ? 6 : 5;
+    // Always center on Philippines (12.8797° N, 121.7740° E)
+    const centerLat = 12.8797;
+    const centerLng = 121.7740;
+    const zoomLevel = 5; // Philippines view
 
     // Don't render map until mounted
     if (!isMounted) {
         return (
             <div className={`relative z-0 ${className}`}>
-                <div className="w-full h-64 md:h-80 rounded-lg overflow-hidden relative z-0 flex items-center justify-center bg-gray-100">
+                <div className="w-full h-48 md:h-64 rounded-lg overflow-hidden relative z-0 flex items-center justify-center bg-gray-100">
                     <div className="text-center">
                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
                         <p className="text-gray-600">Preparing map...</p>
@@ -141,7 +138,7 @@ const LocationMap = ({ locations, className = '' }: LocationMapProps) => {
     return (
         <>
             <div className={`relative z-0 ${className}`}>
-                <div className="w-full h-64 md:h-80 rounded-lg overflow-hidden relative z-0">
+                <div className="w-full h-48 md:h-64 rounded-lg overflow-hidden relative z-0">
                     <MapContainer
                         key="small-map"
                         center={[centerLat, centerLng]}
@@ -153,27 +150,33 @@ const LocationMap = ({ locations, className = '' }: LocationMapProps) => {
                             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                         />
-                        {validLocations.map((location, index) => (
-                            <Marker key={index} position={[location.lat, location.lng]}>
-                                <Popup>
-                                    <div className="min-w-[200px]">
-                                        <strong className="text-primary text-base">{location.name}</strong>
-                                        <br />
-                                        <span className="text-sm text-gray-600">{location.address}</span>
-                                        {location.officeHours && location.officeHours.length > 0 && (
-                                            <div className="mt-2 pt-2 border-t border-gray-200">
-                                                <strong className="text-sm text-primary">Office Hours:</strong>
-                                                <div className="text-xs text-gray-600 mt-1">
-                                                    {formatOfficeHours(location.officeHours).map((line, idx) => (
-                                                        <div key={idx}>{line}</div>
-                                                    ))}
+                        {locations.map((location, index) => {
+                            // Only render marker if lat and lng are defined and not 0
+                            if (!location.lat || !location.lng || location.lat === 0 || location.lng === 0) {
+                                return null;
+                            }
+                            return (
+                                <Marker key={index} position={[location.lat, location.lng]}>
+                                    <Popup>
+                                        <div className="min-w-[200px]">
+                                            <strong className="text-primary text-base">{location.name}</strong>
+                                            <br />
+                                            <span className="text-sm text-gray-600">{location.address}</span>
+                                            {location.officeHours && location.officeHours.length > 0 && (
+                                                <div className="mt-2 pt-2 border-t border-gray-200">
+                                                    <strong className="text-sm text-primary">Office Hours:</strong>
+                                                    <div className="text-xs text-gray-600 mt-1">
+                                                        {formatOfficeHours(location.officeHours).map((line, idx) => (
+                                                            <div key={idx}>{line}</div>
+                                                        ))}
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        )}
-                                    </div>
-                                </Popup>
-                            </Marker>
-                        ))}
+                                            )}
+                                        </div>
+                                    </Popup>
+                                </Marker>
+                            );
+                        })}
                     </MapContainer>
                 </div>
                 <button
@@ -183,6 +186,35 @@ const LocationMap = ({ locations, className = '' }: LocationMapProps) => {
                 >
                     <FaExpand className="text-primary" />
                 </button>
+            </div>
+
+            {/* Office List Section */}
+            <div className="mt-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {locations.map((location, index) => (
+                        <div
+                            key={index}
+                            className="bg-white rounded-lg shadow-sm p-2 border border-gray-200 hover:shadow-md transition-shadow"
+                        >
+                            <h4 className="text-sm font-semibold text-primary mb-2">
+                                {location.name}
+                            </h4>
+                            <p className="text-xs text-gray-600 mb-3">
+                                {location.address}
+                            </p>
+                            {location.officeHours && location.officeHours.length > 0 && (
+                                <div className="border-t border-gray-200 pt-3">
+                                    <h5 className="text-sm font-semibold text-gray-800 mb-2">Office Hours:</h5>
+                                    <div className="text-xs text-gray-600 space-y-0.5">
+                                        {formatOfficeHours(location.officeHours).map((line, idx) => (
+                                            <div key={idx}>{line}</div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    ))}
+                </div>
             </div>
 
             {/* Enlarged Map Modal */}
@@ -227,27 +259,7 @@ const LocationMap = ({ locations, className = '' }: LocationMapProps) => {
                                         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                                         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                                     />
-                                    {validLocations.map((location, index) => (
-                                        <Marker key={index} position={[location.lat, location.lng]}>
-                                            <Popup>
-                                                <div className="min-w-[200px]">
-                                                    <strong className="text-primary text-base">{location.name}</strong>
-                                                    <br />
-                                                    <span className="text-sm text-gray-600">{location.address}</span>
-                                                    {location.officeHours && location.officeHours.length > 0 && (
-                                                        <div className="mt-2 pt-2 border-t border-gray-200">
-                                                            <strong className="text-sm text-primary">Office Hours:</strong>
-                                                            <div className="text-xs text-gray-600 mt-1">
-                                                                {formatOfficeHours(location.officeHours).map((line, idx) => (
-                                                                    <div key={idx}>{line}</div>
-                                                                ))}
-                                                            </div>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </Popup>
-                                        </Marker>
-                                    ))}
+
                                 </MapContainer>
                             </div>
                         </motion.div>

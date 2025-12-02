@@ -29,7 +29,7 @@ const ContactWithMap = ({ offices }: ContactWithMapProps) => {
                     </div>
 
                     {/* Location Map */}
-                    <div className="bg-white p-8 border border-gray-300 rounded-2xl shadow-xl h-full relative z-0">
+                    <div className="bg-white p-4 border border-gray-300 rounded-2xl shadow-xl h-full relative z-0">
                         <LocationMap locations={offices} />
                     </div>
                 </div>

@@ -174,6 +174,8 @@ async function fetchOffices(): Promise<MapLocation[]> {
             console.error('Geocoding service failed, offices will be shown without map markers:', geocodingError);
             // Return offices without coordinates if geocoding completely fails
             return response.data.map(office => ({
+                lat: 0,
+                lng: 0,
                 name: office.name,
                 address: office.address,
                 ...(office.officeHours && { officeHours: office.officeHours }),
@@ -196,6 +198,8 @@ async function fetchOffices(): Promise<MapLocation[]> {
 
             // If geocoding failed, return without coordinates
             return {
+                lat: 0,
+                lng: 0,
                 name: office.name,
                 address: office.address,
                 ...(office.officeHours && { officeHours: office.officeHours }),
