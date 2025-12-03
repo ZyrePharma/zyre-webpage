@@ -600,6 +600,38 @@ export interface ApiCompanyCompany extends Struct.SingleTypeSchema {
   };
 }
 
+export interface ApiContactMessageContactMessage
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'contact_messages';
+  info: {
+    displayName: 'Contact Message';
+    pluralName: 'contact-messages';
+    singularName: 'contact-message';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    email: Schema.Attribute.Email;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::contact-message.contact-message'
+    > &
+      Schema.Attribute.Private;
+    message: Schema.Attribute.Text;
+    name: Schema.Attribute.String;
+    publishedAt: Schema.Attribute.DateTime;
+    subject: Schema.Attribute.String;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
 export interface ApiFaqFaq extends Struct.CollectionTypeSchema {
   collectionName: 'faqs';
   info: {
@@ -661,6 +693,43 @@ export interface ApiHeroItemHeroItem extends Struct.CollectionTypeSchema {
   };
 }
 
+export interface ApiJobApplicationJobApplication
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'job_applications';
+  info: {
+    displayName: 'Job Application';
+    pluralName: 'job-applications';
+    singularName: 'job-application';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    contactNumber: Schema.Attribute.String;
+    coverLetter: Schema.Attribute.Text;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    email: Schema.Attribute.Email;
+    fullName: Schema.Attribute.String;
+    job_listing: Schema.Attribute.Relation<
+      'oneToOne',
+      'api::job-listing.job-listing'
+    >;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::job-application.job-application'
+    > &
+      Schema.Attribute.Private;
+    publishedAt: Schema.Attribute.DateTime;
+    resume: Schema.Attribute.Media<'images' | 'files' | 'videos' | 'audios'>;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
 export interface ApiJobListingJobListing extends Struct.CollectionTypeSchema {
   collectionName: 'job_listings';
   info: {
@@ -713,11 +782,11 @@ export interface ApiNewsletterSubscriberNewsletterSubscriber
     draftAndPublish: true;
   };
   attributes: {
-    active: Schema.Attribute.Boolean;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
     email: Schema.Attribute.Email;
+    isActive: Schema.Attribute.Boolean;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
@@ -748,6 +817,8 @@ export interface ApiOfficeOffice extends Struct.CollectionTypeSchema {
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    lat: Schema.Attribute.Float;
+    lng: Schema.Attribute.Float;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
@@ -1479,8 +1550,10 @@ declare module '@strapi/strapi' {
       'api::business-partner.business-partner': ApiBusinessPartnerBusinessPartner;
       'api::company-gallery.company-gallery': ApiCompanyGalleryCompanyGallery;
       'api::company.company': ApiCompanyCompany;
+      'api::contact-message.contact-message': ApiContactMessageContactMessage;
       'api::faq.faq': ApiFaqFaq;
       'api::hero-item.hero-item': ApiHeroItemHeroItem;
+      'api::job-application.job-application': ApiJobApplicationJobApplication;
       'api::job-listing.job-listing': ApiJobListingJobListing;
       'api::newsletter-subscriber.newsletter-subscriber': ApiNewsletterSubscriberNewsletterSubscriber;
       'api::office.office': ApiOfficeOffice;

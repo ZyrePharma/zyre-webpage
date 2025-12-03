@@ -1,0 +1,42 @@
+{
+  "kind": "collectionType",
+  "collectionName": "job_applications",
+  "info": {
+    "singularName": "job-application",
+    "pluralName": "job-applications",
+    "displayName": "Job Application"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "fullName": {
+      "type": "string"
+    },
+    "email": {
+      "type": "email"
+    },
+    "contactNumber": {
+      "type": "string"
+    },
+    "coverLetter": {
+      "type": "text"
+    },
+    "resume": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "job_listing": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::job-listing.job-listing"
+    }
+  }
+}

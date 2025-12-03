@@ -108,14 +108,75 @@ const formatOfficeHours = (hours?: OfficeHour[]): string[] => {
 const LocationMap = ({ locations, className = '' }: LocationMapProps) => {
     const [isMapEnlarged, setIsMapEnlarged] = useState(false);
     const [isMounted, setIsMounted] = useState(false);
+    const [customIcon, setCustomIcon] = useState<any>(null);
 
     // Ensure component only renders maps on client-side after hydration
     useEffect(() => {
         setIsMounted(true);
+
+        // Create custom icon only on client-side
+        if (typeof window !== 'undefined') {
+            const L = require('leaflet');
+
+            // Create a custom DivIcon with the logo in a circular pin
+            const icon = L.divIcon({
+                className: 'custom-map-marker',
+                html: `
+                    <div style="position: relative; width: 40px; height: 50px;">
+                        <div style="
+                            position: absolute;
+                            top: 0;
+                            left: 50%;
+                            transform: translateX(-50%);
+                            width: 40px;
+                            height: 40px;
+                            background: white;
+                            border: 3px solid #00395c;
+                            border-radius: 50%;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+                        ">
+                            <img src="/assets/zyre-logo.png" style="width: 28px; height: 28px; object-fit: contain;" />
+                        </div>
+                        <div style="
+                            position: absolute;
+                            bottom: 0;
+                            left: 50%;
+                            transform: translateX(-50%);
+                            width: 0;
+                            height: 0;
+                            border-left: 8px solid transparent;
+                            border-right: 8px solid transparent;
+                            border-top: 12px solid #00395c;
+                        "></div>
+                    </div>
+                `,
+                iconSize: [40, 50],
+                iconAnchor: [20, 50],
+                popupAnchor: [0, -50],
+            });
+
+            setCustomIcon(icon);
+        }
     }, []);
 
-    console.log("Locations:", locations)
+    // Disable body scroll when map is enlarged
+    useEffect(() => {
+        if (isMapEnlarged) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
 
+        // Cleanup on unmount
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
+    }, [isMapEnlarged]);
+
+    console.log("Location:", locations)
     // Always center on Philippines (12.8797° N, 121.7740° E)
     const centerLat = 12.8797;
     const centerLng = 121.7740;
@@ -150,13 +211,13 @@ const LocationMap = ({ locations, className = '' }: LocationMapProps) => {
                             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                         />
-                        {locations.map((location, index) => {
+                        {customIcon && locations.map((location, index) => {
                             // Only render marker if lat and lng are defined and not 0
                             if (!location.lat || !location.lng || location.lat === 0 || location.lng === 0) {
                                 return null;
                             }
                             return (
-                                <Marker key={index} position={[location.lat, location.lng]}>
+                                <Marker key={index} position={[location.lat, location.lng]} icon={customIcon}>
                                     <Popup>
                                         <div className="min-w-[200px]">
                                             <strong className="text-primary text-base">{location.name}</strong>
@@ -259,7 +320,33 @@ const LocationMap = ({ locations, className = '' }: LocationMapProps) => {
                                         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                                         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                                     />
-
+                                    {customIcon && locations.map((location, index) => {
+                                        // Only render marker if lat and lng are defined and not 0
+                                        if (!location.lat || !location.lng || location.lat === 0 || location.lng === 0) {
+                                            return null;
+                                        }
+                                        return (
+                                            <Marker key={index} position={[location.lat, location.lng]} icon={customIcon}>
+                                                <Popup>
+                                                    <div className="min-w-[200px]">
+                                                        <strong className="text-primary text-base">{location.name}</strong>
+                                                        <br />
+                                                        <span className="text-sm text-gray-600">{location.address}</span>
+                                                        {location.officeHours && location.officeHours.length > 0 && (
+                                                            <div className="mt-2 pt-2 border-t border-gray-200">
+                                                                <strong className="text-sm text-primary">Office Hours:</strong>
+                                                                <div className="text-xs text-gray-600 mt-1">
+                                                                    {formatOfficeHours(location.officeHours).map((line, idx) => (
+                                                                        <div key={idx}>{line}</div>
+                                                                    ))}
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </Popup>
+                                            </Marker>
+                                        );
+                                    })}
                                 </MapContainer>
                             </div>
                         </motion.div>

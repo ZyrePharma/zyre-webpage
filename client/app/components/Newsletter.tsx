@@ -9,22 +9,52 @@ const Newsletter = () => {
   const [submitStatus, setSubmitStatus] = useState<
     'idle' | 'success' | 'error'
   >('idle');
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setErrorMessage('');
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    try {
+      const response = await fetch('/api/newsletter-subscribers', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
 
-    setIsSubmitting(false);
-    setSubmitStatus('success');
-    setEmail('');
+      const data = await response.json();
 
-    // Reset status after 3 seconds
-    setTimeout(() => {
-      setSubmitStatus('idle');
-    }, 3000);
+      if (!response.ok) {
+        throw new Error(data.error?.message || 'Failed to subscribe');
+      }
+
+      // Success
+      setSubmitStatus('success');
+      setEmail('');
+
+      // Reset status after 5 seconds
+      setTimeout(() => {
+        setSubmitStatus('idle');
+      }, 5000);
+
+    } catch (error) {
+      console.error('Newsletter subscription error:', error);
+      setSubmitStatus('error');
+      setErrorMessage(
+        error instanceof Error ? error.message : 'An unexpected error occurred'
+      );
+
+      // Reset error status after 5 seconds
+      setTimeout(() => {
+        setSubmitStatus('idle');
+        setErrorMessage('');
+      }, 5000);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -49,6 +79,20 @@ const Newsletter = () => {
             We&apos;ll keep you updated with our latest news and insights.
           </p>
         </motion.div>
+      ) : submitStatus === 'error' ? (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="text-center"
+        >
+          <div className="text-4xl mb-4">✕</div>
+          <h3 className="text-2xl font-bold mb-2">
+            Oops! Something went wrong
+          </h3>
+          <p className="text-lg opacity-90">
+            {errorMessage || 'Please try again later.'}
+          </p>
+        </motion.div>
       ) : (
         <>
           <h3 className="text-xl font-bold mb-2">Stay Updated</h3>
@@ -66,15 +110,17 @@ const Newsletter = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="flex-1 px-4 py-3 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white"
+              className="flex-1 px-4 py-3 rounded-lg text-white placeholder-gray-300 bg-transparent border-2 border-white focus:outline-none focus:ring-2 focus:ring-white focus:border-white transition-all"
             />
-            <button
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               type="submit"
               disabled={isSubmitting}
-              className="bg-white text-primary px-6 py-3 rounded-lg font-medium hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="bg-white text-primary px-6 py-3 rounded-lg font-medium hover:bg-white/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg border-2 border-white"
             >
               {isSubmitting ? 'Subscribing...' : 'Subscribe'}
-            </button>
+            </motion.button>
           </form>
         </>
       )}

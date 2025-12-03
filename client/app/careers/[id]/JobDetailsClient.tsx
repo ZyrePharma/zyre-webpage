@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import {
     MdLocationOn,
     MdWork,
@@ -59,6 +58,7 @@ const JobDetailsClient: React.FC<JobDetailsClientProps> = ({ job }) => {
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+    const [errorMessage, setErrorMessage] = useState<string>('');
 
     const handleInputChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -83,24 +83,70 @@ const JobDetailsClient: React.FC<JobDetailsClientProps> = ({ job }) => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSubmitting(true);
+        setErrorMessage('');
 
-        // Simulate API call
-        await new Promise((resolve) => setTimeout(resolve, 1500));
+        try {
+            // Validate required fields
+            if (!formData.name || !formData.email || !formData.phone || !formData.resume) {
+                throw new Error('Please fill in all required fields');
+            }
 
-        setIsSubmitting(false);
-        setSubmitStatus('success');
+            // Create FormData for file upload
+            const formDataToSend = new FormData();
 
-        // Reset form after success
-        setTimeout(() => {
-            setFormData({
-                name: '',
-                email: '',
-                phone: '',
-                coverLetter: '',
-                resume: null,
+            // Prepare the data object for Strapi
+            const applicationData = {
+                fullName: formData.name,
+                email: formData.email,
+                contactNumber: formData.phone,
+                coverLetter: formData.coverLetter,
+                job_listing: job.documentId, // Link to the job listing
+            };
+
+            // Append the data as JSON
+            formDataToSend.append('data', JSON.stringify(applicationData));
+
+            // Append the resume file
+            if (formData.resume) {
+                formDataToSend.append('files.resume', formData.resume);
+            }
+
+            // Submit to Next.js API route (which forwards to Strapi)
+            const response = await fetch('/api/job-applications', {
+                method: 'POST',
+                body: formDataToSend,
+                // Don't set Content-Type header - browser will set it with boundary for FormData
             });
-            setSubmitStatus('idle');
-        }, 3000);
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.error?.message || 'Failed to submit application. Please try again.');
+            }
+
+            // Success!
+            setSubmitStatus('success');
+
+            // Reset form after success
+            setTimeout(() => {
+                setFormData({
+                    name: '',
+                    email: '',
+                    phone: '',
+                    coverLetter: '',
+                    resume: null,
+                });
+                setSubmitStatus('idle');
+                // Reset file input
+                const fileInput = document.getElementById('resume') as HTMLInputElement;
+                if (fileInput) fileInput.value = '';
+            }, 3000);
+        } catch (error) {
+            console.error('Error submitting application:', error);
+            setErrorMessage(error instanceof Error ? error.message : 'An unexpected error occurred');
+            setSubmitStatus('error');
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     const animationVariants = {
@@ -248,7 +294,7 @@ const JobDetailsClient: React.FC<JobDetailsClientProps> = ({ job }) => {
 
                             {submitStatus === 'success' ? (
                                 <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
-                                    <div className="text-green-600 mb-2">✓</div>
+                                    <div className="text-green-600 mb-2 text-3xl">✓</div>
                                     <p className="text-green-700 font-semibold">
                                         Application Submitted Successfully!
                                     </p>
@@ -257,117 +303,126 @@ const JobDetailsClient: React.FC<JobDetailsClientProps> = ({ job }) => {
                                     </p>
                                 </div>
                             ) : (
-                                <form onSubmit={handleSubmit} className="space-y-4">
-                                    <div>
-                                        <label
-                                            htmlFor="name"
-                                            className="block text-sm font-medium text-gray-700 mb-2"
-                                        >
-                                            <MdPerson className="inline mr-1" />
-                                            Full Name *
-                                        </label>
-                                        <input
-                                            type="text"
-                                            id="name"
-                                            name="name"
-                                            required
-                                            value={formData.name}
-                                            onChange={handleInputChange}
-                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                                            placeholder="John Doe"
-                                        />
-                                    </div>
-
-                                    <div>
-                                        <label
-                                            htmlFor="email"
-                                            className="block text-sm font-medium text-gray-700 mb-2"
-                                        >
-                                            <MdEmail className="inline mr-1" />
-                                            Email Address *
-                                        </label>
-                                        <input
-                                            type="email"
-                                            id="email"
-                                            name="email"
-                                            required
-                                            value={formData.email}
-                                            onChange={handleInputChange}
-                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                                            placeholder="john.doe@example.com"
-                                        />
-                                    </div>
-
-                                    <div>
-                                        <label
-                                            htmlFor="phone"
-                                            className="block text-sm font-medium text-gray-700 mb-2"
-                                        >
-                                            <MdPhone className="inline mr-1" />
-                                            Phone Number *
-                                        </label>
-                                        <input
-                                            type="tel"
-                                            id="phone"
-                                            name="phone"
-                                            required
-                                            value={formData.phone}
-                                            onChange={handleInputChange}
-                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                                            placeholder="+63 9XX XXX XXXX"
-                                        />
-                                    </div>
-
-                                    <div>
-                                        <label
-                                            htmlFor="resume"
-                                            className="block text-sm font-medium text-gray-700 mb-2"
-                                        >
-                                            <MdUploadFile className="inline mr-1" />
-                                            Resume/CV *
-                                        </label>
-                                        <input
-                                            type="file"
-                                            id="resume"
-                                            name="resume"
-                                            required
-                                            accept=".pdf,.doc,.docx"
-                                            onChange={handleFileChange}
-                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-secondary"
-                                        />
-                                        {formData.resume && (
-                                            <p className="text-sm text-gray-600 mt-1">
-                                                {formData.resume.name}
+                                <>
+                                    {submitStatus === 'error' && errorMessage && (
+                                        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+                                            <p className="text-red-700 text-sm">
+                                                <strong>Error:</strong> {errorMessage}
                                             </p>
-                                        )}
-                                    </div>
+                                        </div>
+                                    )}
+                                    <form onSubmit={handleSubmit} className="space-y-4">
+                                        <div>
+                                            <label
+                                                htmlFor="name"
+                                                className="block text-sm font-medium text-gray-700 mb-2"
+                                            >
+                                                <MdPerson className="inline mr-1" />
+                                                Full Name *
+                                            </label>
+                                            <input
+                                                type="text"
+                                                id="name"
+                                                name="name"
+                                                required
+                                                value={formData.name}
+                                                onChange={handleInputChange}
+                                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-primary"
+                                                placeholder="John Doe"
+                                            />
+                                        </div>
 
-                                    <div>
-                                        <label
-                                            htmlFor="coverLetter"
-                                            className="block text-sm font-medium text-gray-700 mb-2"
+                                        <div>
+                                            <label
+                                                htmlFor="email"
+                                                className="block text-sm font-medium text-gray-700 mb-2"
+                                            >
+                                                <MdEmail className="inline mr-1" />
+                                                Email Address *
+                                            </label>
+                                            <input
+                                                type="email"
+                                                id="email"
+                                                name="email"
+                                                required
+                                                value={formData.email}
+                                                onChange={handleInputChange}
+                                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-primary"
+                                                placeholder="john.doe@example.com"
+                                            />
+                                        </div>
+
+                                        <div>
+                                            <label
+                                                htmlFor="phone"
+                                                className="block text-sm font-medium text-gray-700 mb-2"
+                                            >
+                                                <MdPhone className="inline mr-1" />
+                                                Phone Number *
+                                            </label>
+                                            <input
+                                                type="tel"
+                                                id="phone"
+                                                name="phone"
+                                                required
+                                                value={formData.phone}
+                                                onChange={handleInputChange}
+                                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-primary"
+                                                placeholder="+63 9XX XXX XXXX"
+                                            />
+                                        </div>
+
+                                        <div>
+                                            <label
+                                                htmlFor="resume"
+                                                className="block text-sm font-medium text-gray-700 mb-2"
+                                            >
+                                                <MdUploadFile className="inline mr-1" />
+                                                Resume/CV *
+                                            </label>
+                                            <input
+                                                type="file"
+                                                id="resume"
+                                                name="resume"
+                                                required
+                                                accept=".pdf,.doc,.docx"
+                                                onChange={handleFileChange}
+                                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-secondary"
+                                            />
+                                            {formData.resume && (
+                                                <p className="text-sm text-gray-600 mt-1">
+                                                    {formData.resume.name}
+                                                </p>
+                                            )}
+                                        </div>
+
+                                        <div>
+                                            <label
+                                                htmlFor="coverLetter"
+                                                className="block text-sm font-medium text-gray-700 mb-2"
+                                            >
+                                                Cover Letter
+                                            </label>
+                                            <textarea
+                                                id="coverLetter"
+                                                name="coverLetter"
+                                                rows={5}
+                                                value={formData.coverLetter}
+                                                onChange={handleInputChange}
+                                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-none text-primary"
+                                                placeholder="Tell us why you're a great fit for this position..."
+                                            />
+                                        </div>
+
+                                        <button
+                                            type="submit"
+                                            disabled={isSubmitting}
+                                            className="w-full bg-primary text-white py-3 px-4 rounded-lg font-semibold hover:bg-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                         >
-                                            Cover Letter
-                                        </label>
-                                        <textarea
-                                            id="coverLetter"
-                                            name="coverLetter"
-                                            rows={5}
-                                            value={formData.coverLetter}
-                                            onChange={handleInputChange}
-                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
-                                            placeholder="Tell us why you're a great fit for this position..."
-                                        />
-                                    </div>
-
-                                    <button
-                                        type="submit"
-                                        disabled={isSubmitting}
-                                        className="w-full bg-primary text-white py-3 px-4 rounded-lg font-semibold hover:bg-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                    >
-                                        {isSubmitting ? 'Submitting...' : 'Submit Application'}
-                                    </button>
-                                </form>
+                                            {isSubmitting ? 'Submitting...' : 'Submit Application'}
+                                        </button>
+                                    </form>
+                                </>
                             )}
                         </motion.div>
                     </div>

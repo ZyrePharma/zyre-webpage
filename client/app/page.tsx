@@ -5,7 +5,6 @@ import Slider from './components/Slider';
 import Newsletter from './components/Newsletter';
 import AnimatedSection from './components/AnimatedSection';
 import { getStrapiCollection, getStrapiURL } from '@/lib/strapi';
-import { geocodeAddresses } from '@/lib/geocoding';
 import ContactWithMap from './components/ContactWithMap';
 import { MapLocation } from './components/LocationMap';
 
@@ -71,6 +70,8 @@ interface StrapiOffice {
     documentId: string;
     name: string;
     address: string;
+    lat?: number;
+    lng?: number;
     contact: Array<{
         type: string;
         value: string;
@@ -109,9 +110,24 @@ async function fetchCarouselImages(): Promise<Product[]> {
 
         const products = response.data || [];
 
-        // Shuffle and select 5 random products
-        const shuffled = [...products].sort(() => Math.random() - 0.5);
-        return shuffled.slice(0, 5);
+        // Use a deterministic selection based on the day of the year
+        // This ensures server and client render the same products (avoiding hydration error)
+        // Products will rotate daily
+        const now = new Date();
+        const startOfYear = new Date(now.getFullYear(), 0, 0);
+        const diff = now.getTime() - startOfYear.getTime();
+        const dayOfYear = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+        // Start from a different position each day
+        const startIndex = dayOfYear % products.length;
+        const selected = [];
+
+        for (let i = 0; i < Math.min(5, products.length); i++) {
+            const index = (startIndex + i) % products.length;
+            selected.push(products[index]);
+        }
+
+        return selected;
     } catch (error) {
         console.error('Failed to fetch carousel images:', error);
         return [];
@@ -163,48 +179,15 @@ async function fetchOffices(): Promise<MapLocation[]> {
             next: { revalidate: 3600 },
         });
 
-        // Extract addresses for server-side geocoding (avoids CORS)
-        const addresses = response.data.map(office => office.address);
-
-        // Geocode all addresses server-side with error handling
-        let geocodedResults: (any | null)[] = [];
-        try {
-            geocodedResults = await geocodeAddresses(addresses);
-        } catch (geocodingError) {
-            console.error('Geocoding service failed, offices will be shown without map markers:', geocodingError);
-            // Return offices without coordinates if geocoding completely fails
-            return response.data.map(office => ({
-                lat: 0,
-                lng: 0,
-                name: office.name,
-                address: office.address,
-                ...(office.officeHours && { officeHours: office.officeHours }),
-            }));
-        }
-
-        // Combine office data with geocoded coordinates
-        return response.data.map((office, index) => {
-            const geocoded = geocodedResults[index];
-
-            if (geocoded) {
-                return {
-                    lat: geocoded.lat,
-                    lng: geocoded.lng,
-                    name: office.name,
-                    address: office.address,
-                    ...(office.officeHours && { officeHours: office.officeHours }),
-                };
-            }
-
-            // If geocoding failed, return without coordinates
-            return {
-                lat: 0,
-                lng: 0,
-                name: office.name,
-                address: office.address,
-                ...(office.officeHours && { officeHours: office.officeHours }),
-            };
-        });
+        console.log(response.data);
+        // Map office data directly using lat/lng from Strapi
+        return response.data.map(office => ({
+            lat: office.lat ?? 0,
+            lng: office.lng ?? 0,
+            name: office.name,
+            address: office.address,
+            ...(office.officeHours && { officeHours: office.officeHours }),
+        }));
     } catch (error) {
         console.error('Failed to fetch offices:', error);
         return [];
@@ -266,7 +249,6 @@ export default async function Home() {
         fetchOffices()
     ]);
 
-    console.log("Offices:", offices)
 
     // Get Strapi URL for image transformations
     const strapiUrl = getStrapiURL();

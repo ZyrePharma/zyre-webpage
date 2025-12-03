@@ -26,6 +26,12 @@
       "type": "component",
       "component": "office-hour.office-hours",
       "repeatable": true
+    },
+    "lat": {
+      "type": "float"
+    },
+    "lng": {
+      "type": "float"
     }
   }
 }

@@ -17,7 +17,7 @@
     "subscribedAt": {
       "type": "datetime"
     },
-    "active": {
+    "isActive": {
       "type": "boolean"
     }
   }

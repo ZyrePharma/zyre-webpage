@@ -237,14 +237,15 @@ const Card: React.FC<{ product: ProductCardProps }> = memo(({ product }) => {
             variants={infoVariants}
             initial="initial"
             animate="animate"
-            className="flex justify-end mt-2"
+            className="flex justify-center mt-2"
           >
-            <motion.div
+            <motion.button
+              whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="text-primary text-xs font-medium underline hover:text-primary/80 transition-colors"
+              className="text-white bg-primary text-xs font-medium px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors shadow-lg"
             >
-              Read more...
-            </motion.div>
+              Learn more
+            </motion.button>
           </motion.div>
         </div>
       </motion.div>
