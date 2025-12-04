@@ -36,7 +36,6 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
 
 const CareersPageClient: React.FC<CareersPageClientProps> = ({ jobListings, benefits }) => {
     const [isLoaded, setIsLoaded] = useState(false);
-    const [missionInView, missionRef] = useInViewport(0.2);
     const [benefitsInView, benefitsRef] = useInViewport(0.2);
     const [jobsInView, jobsRef] = useInViewport(0.2);
 
@@ -45,7 +44,6 @@ const CareersPageClient: React.FC<CareersPageClientProps> = ({ jobListings, bene
     }, []);
 
     // Cast refs to work with motion components
-    const missionDivRef = missionRef as React.RefObject<HTMLDivElement>;
     const benefitsDivRef = benefitsRef as React.RefObject<HTMLDivElement>;
     const jobsDivRef = jobsRef as React.RefObject<HTMLDivElement>;
 
@@ -104,7 +102,6 @@ const CareersPageClient: React.FC<CareersPageClientProps> = ({ jobListings, bene
         <div className="w-full min-h-screen px-4 py-8 max-w-7xl mx-auto">
             {/* Mission & Vision Section */}
             <motion.div
-                ref={missionDivRef}
                 initial="hidden"
                 animate={shouldAnimateMission ? 'visible' : 'hidden'}
                 variants={fadeInUp}
@@ -170,7 +167,7 @@ const CareersPageClient: React.FC<CareersPageClientProps> = ({ jobListings, bene
                     className="grid md:grid-cols-2 gap-8 md:gap-10 mt-8"
                     variants={staggerContainer}
                 >
-                    {benefits.map((benefitGroup, groupIndex) => {
+                    {benefits.map((benefitGroup) => {
                         // Determine icon for the department
                         const DepartmentIcon = benefitGroup.department.toLowerCase().includes('sales')
                             ? FaHandshake

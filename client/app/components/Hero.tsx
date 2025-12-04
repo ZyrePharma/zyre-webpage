@@ -76,7 +76,7 @@ const HeroPage = ({ slides: propSlides }: HeroPageProps) => {
       setCurrentIndex((prev) => (prev + 1) % slides.length);
     }, 6000);
     return () => clearInterval(interval);
-  }, []);
+  }, [slides.length]);
 
   const handleSmoothScroll = (
     e: React.MouseEvent<HTMLAnchorElement>,

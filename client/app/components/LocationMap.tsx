@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaExpand } from 'react-icons/fa';
 import dynamic from 'next/dynamic';
+import type * as L from 'leaflet';
 
 // Dynamically import Map components to avoid SSR issues
 const MapContainer = dynamic(
@@ -108,7 +109,7 @@ const formatOfficeHours = (hours?: OfficeHour[]): string[] => {
 const LocationMap = ({ locations, className = '' }: LocationMapProps) => {
     const [isMapEnlarged, setIsMapEnlarged] = useState(false);
     const [isMounted, setIsMounted] = useState(false);
-    const [customIcon, setCustomIcon] = useState<any>(null);
+    const [customIcon, setCustomIcon] = useState<L.DivIcon | null>(null);
 
     // Ensure component only renders maps on client-side after hydration
     useEffect(() => {
@@ -116,12 +117,11 @@ const LocationMap = ({ locations, className = '' }: LocationMapProps) => {
 
         // Create custom icon only on client-side
         if (typeof window !== 'undefined') {
-            const L = require('leaflet');
-
-            // Create a custom DivIcon with the logo in a circular pin
-            const icon = L.divIcon({
-                className: 'custom-map-marker',
-                html: `
+            import('leaflet').then((L) => {
+                // Create a custom DivIcon with the logo in a circular pin
+                const icon = L.divIcon({
+                    className: 'custom-map-marker',
+                    html: `
                     <div style="position: relative; width: 40px; height: 50px;">
                         <div style="
                             position: absolute;
@@ -153,12 +153,13 @@ const LocationMap = ({ locations, className = '' }: LocationMapProps) => {
                         "></div>
                     </div>
                 `,
-                iconSize: [40, 50],
-                iconAnchor: [20, 50],
-                popupAnchor: [0, -50],
-            });
+                    iconSize: [40, 50],
+                    iconAnchor: [20, 50],
+                    popupAnchor: [0, -50],
+                });
 
-            setCustomIcon(icon);
+                setCustomIcon(icon);
+            });
         }
     }, []);
 

@@ -149,7 +149,7 @@ async function fetchCompanyGallery(): Promise<GalleryCollection[]> {
         galleries.push({
           id: gallery.id,
           title: gallery.title,
-          description: gallery.description,
+          ...(gallery.description && { description: gallery.description }),
           images,
         });
       }

@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
         let applicationData;
         try {
             applicationData = JSON.parse(dataString);
-        } catch (e) {
+        } catch {
             return NextResponse.json(
                 { error: { message: 'Invalid JSON data' } },
                 { status: 400 }
@@ -176,7 +176,14 @@ export async function POST(request: NextRequest) {
                     : undefined;
 
                 // Prepare email data
-                const emailData: any = {
+                const emailData: {
+                    fullName: string;
+                    email: string;
+                    contactNumber: string;
+                    jobTitle: string;
+                    submittedAt: string;
+                    resumeUrl?: string;
+                } = {
                     fullName,
                     email,
                     contactNumber,

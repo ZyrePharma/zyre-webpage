@@ -49,18 +49,15 @@ export default function ProductsPage({
     const [itemsPerPage, setItemsPerPage] = useState<number>(12);
     const [currentPage, setCurrentPage] = useState<number>(1);
 
-    // Safety check
-    if (!initialProducts) {
-        return <div className="p-8 text-center">Loading products...</div>;
-    }
-
     // Extract unique categories from products
     const categories = useMemo(() => {
+        if (!initialProducts || initialProducts.length === 0) return ['All'];
         return ['All', ...Array.from(new Set(initialProducts.map((p) => p.category)))];
     }, [initialProducts]);
 
     // Filter products based on category and search query
     const filteredProducts = useMemo(() => {
+        if (!initialProducts || initialProducts.length === 0) return [];
         return initialProducts.filter((product) => {
             // Filter by category
             const matchesCategory =
@@ -92,6 +89,11 @@ export default function ProductsPage({
     const handleSearch = (query: string) => {
         setSearchQuery(query);
     };
+
+    // Safety check - now after all hooks
+    if (!initialProducts) {
+        return <div className="p-8 text-center">Loading products...</div>;
+    }
 
     // Show error state if there was an error fetching from Strapi
     if (error) {

@@ -2,6 +2,7 @@ import { getStrapiCollection, getStrapiEntry } from '../../../lib/strapi'
 import { JobListing } from '../../types';
 import JobDetailsClient from './JobDetailsClient';
 import { notFound } from 'next/navigation';
+import { StrapiBlockContent, StrapiBlock, StrapiTextChild } from '../../types/strapi-blocks';
 
 interface StrapiJobListing {
   id: number;
@@ -13,32 +14,32 @@ interface StrapiJobListing {
   location: string;
   vacancies: number;
   salaryRange: string;
-  description?: any;
-  requirements?: any;
-  responsibilities?: any;
+  description?: StrapiBlockContent;
+  requirements?: StrapiBlockContent;
+  responsibilities?: StrapiBlockContent;
   postedDate: string;
   applicants: number;
   active: boolean;
 }
 
 // Helper function to convert blocks to string array
-function blocksToStringArray(blocks: any): string[] {
+function blocksToStringArray(blocks: StrapiBlockContent | undefined): string[] {
   if (!blocks || !Array.isArray(blocks)) return [];
 
   return blocks
-    .map((block: any) => {
+    .map((block: StrapiBlock) => {
       if (block.type === 'paragraph' && block.children) {
         return block.children
-          .map((child: any) => child.text || '')
+          .map((child: StrapiTextChild) => child.text || '')
           .join('')
           .trim();
       }
       if (block.type === 'list' && block.children) {
         return block.children
-          .map((item: any) => {
+          .map((item) => {
             if (item.children) {
               return item.children
-                .map((child: any) => child.text || '')
+                .map((child: StrapiTextChild) => child.text || '')
                 .join('')
                 .trim();
             }
@@ -53,14 +54,14 @@ function blocksToStringArray(blocks: any): string[] {
 }
 
 // Helper function to convert blocks to string
-function blocksToString(blocks: any): string {
+function blocksToString(blocks: StrapiBlockContent | undefined): string {
   if (!blocks || !Array.isArray(blocks)) return '';
 
   return blocks
-    .map((block: any) => {
+    .map((block: StrapiBlock) => {
       if (block.type === 'paragraph' && block.children) {
         return block.children
-          .map((child: any) => child.text || '')
+          .map((child: StrapiTextChild) => child.text || '')
           .join('');
       }
       return '';
@@ -85,7 +86,7 @@ async function getJob(slugOrId: string): Promise<JobListing | null> {
     });
 
     if (slugResponse.data && slugResponse.data.length > 0) {
-      const item = slugResponse.data[0] as any;
+      const item = slugResponse.data[0];
       return transformJobData(item);
     }
 
@@ -97,10 +98,10 @@ async function getJob(slugOrId: string): Promise<JobListing | null> {
       });
 
       if (idResponse.data) {
-        const item = idResponse.data as any;
+        const item = idResponse.data;
         return transformJobData(item);
       }
-    } catch (e) {
+    } catch {
       // Ignore error if fetching by ID fails, it just means it wasn't an ID
     }
 
@@ -111,7 +112,7 @@ async function getJob(slugOrId: string): Promise<JobListing | null> {
   }
 }
 
-function transformJobData(item: any): JobListing {
+function transformJobData(item: StrapiJobListing): JobListing {
   return {
     id: item.id.toString(),
     documentId: item.documentId,
@@ -155,7 +156,7 @@ export async function generateStaticParams() {
       publicationState: 'live',
     });
 
-    return response.data.map((job: any) => ({
+    return response.data.map((job) => ({
       id: job.slug,
     }));
   } catch (error) {

@@ -121,9 +121,9 @@ export default async function ProductDetailPage({
             size: item.size || 'N/A',
             images,
             fdaId: item.fdaId || 'N/A',
-            price: item.price,
+            ...(item.price !== undefined && { price: item.price }),
             productDetails,
-            distributor
+            ...(distributor && { distributor })
         };
 
         return <ProductDetailClient product={product} />;

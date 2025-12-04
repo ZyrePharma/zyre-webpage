@@ -84,7 +84,7 @@ const ContactPage = () => {
           animate={{ opacity: 1, y: 0 }}
         >
           <FaCheckCircle className="w-5 h-5 flex-shrink-0" />
-          <span>Message sent successfully! We'll get back to you soon.</span>
+          <span>Message sent successfully! We&apos;ll get back to you soon.</span>
         </motion.div>
       )}
 

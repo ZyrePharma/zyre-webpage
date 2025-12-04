@@ -1,6 +1,7 @@
-import { getStrapiCollection, getStrapiURL } from '../../lib/strapi';
-import { JobListing, ZyreBenefit } from '../types';
+import { getStrapiCollection } from '@/lib/strapi';
+import { JobListing, ZyreBenefit } from '@/types';
 import CareersPageClient from './CareersPageClient';
+import { StrapiBlockContent, StrapiBlock, StrapiTextChild } from '../types/strapi-blocks';
 
 interface StrapiJobListing {
   id: number;
@@ -12,9 +13,9 @@ interface StrapiJobListing {
   location: string;
   vacancies: number;
   salaryRange: string;
-  description?: any;
-  requirements?: any;
-  responsibilities?: any;
+  description?: StrapiBlockContent;
+  requirements?: StrapiBlockContent;
+  responsibilities?: StrapiBlockContent;
   postedDate: string;
   applicants: number;
   active: boolean;
@@ -35,23 +36,23 @@ interface StrapiZyreBenefit {
 }
 
 // Helper function to convert blocks to string array
-function blocksToStringArray(blocks: any): string[] {
+function blocksToStringArray(blocks: StrapiBlockContent | undefined): string[] {
   if (!blocks || !Array.isArray(blocks)) return [];
 
   return blocks
-    .map((block: any) => {
+    .map((block: StrapiBlock) => {
       if (block.type === 'paragraph' && block.children) {
         return block.children
-          .map((child: any) => child.text || '')
+          .map((child: StrapiTextChild) => child.text || '')
           .join('')
           .trim();
       }
       if (block.type === 'list' && block.children) {
         return block.children
-          .map((item: any) => {
+          .map((item) => {
             if (item.children) {
               return item.children
-                .map((child: any) => child.text || '')
+                .map((child: StrapiTextChild) => child.text || '')
                 .join('')
                 .trim();
             }
@@ -66,14 +67,14 @@ function blocksToStringArray(blocks: any): string[] {
 }
 
 // Helper function to convert blocks to string
-function blocksToString(blocks: any): string {
+function blocksToString(blocks: StrapiBlockContent | undefined): string {
   if (!blocks || !Array.isArray(blocks)) return '';
 
   return blocks
-    .map((block: any) => {
+    .map((block: StrapiBlock) => {
       if (block.type === 'paragraph' && block.children) {
         return block.children
-          .map((child: any) => child.text || '')
+          .map((child: StrapiTextChild) => child.text || '')
           .join('');
       }
       return '';
@@ -84,7 +85,6 @@ function blocksToString(blocks: any): string {
 
 async function getCareersData() {
   try {
-    const strapiUrl = getStrapiURL();
 
     // Fetch active job listings (including those where active is null)
     const jobsResponse = await getStrapiCollection<StrapiJobListing>('job-listings', {
@@ -116,7 +116,6 @@ async function getCareersData() {
       next: { revalidate: 3600 }, // Revalidate every hour
     });
 
-    console.log('Benefits Response:', JSON.stringify(benefitsResponse, null, 2));
 
     // Transform job listings
     const jobListings: JobListing[] = jobsResponse.data.map((item: StrapiJobListing) => ({
@@ -137,7 +136,6 @@ async function getCareersData() {
       active: item.active ?? true,
     }));
 
-    console.log('Transformed Job Listings:', jobListings);
 
     // Transform benefits
     const benefits: ZyreBenefit[] = benefitsResponse.data.map((item: StrapiZyreBenefit) => {
@@ -161,7 +159,6 @@ async function getCareersData() {
       };
     });
 
-    console.log('Transformed Benefits:', benefits);
 
     return { jobListings, benefits };
   } catch (error) {

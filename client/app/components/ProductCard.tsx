@@ -3,7 +3,7 @@
 import React, { memo, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { FaRegStar, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ProductCardProps } from '../types';
 import {
