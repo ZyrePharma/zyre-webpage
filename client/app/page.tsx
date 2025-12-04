@@ -196,46 +196,52 @@ async function fetchOffices(): Promise<MapLocation[]> {
 
 
 function transformHeroData(items: HeroItem[], strapiUrl: string) {
-    return items.map(item => ({
-        id: item.id,
-        image: item.image?.url ? `${strapiUrl}${item.image.url}` : '/assets/banner1.jpg',
-        title: item.title,
-        description: item.description
-    }));
+    return items
+        .filter(item => item && item.image) // Filter out items without images
+        .map(item => ({
+            id: item.id,
+            image: item.image?.url ? `${strapiUrl}${item.image.url}` : '/assets/banner1.jpg',
+            title: item.title || '',
+            description: item.description || ''
+        }));
 }
 
 
 function transformCarouselData(products: Product[], strapiUrl: string) {
-    return products.map(product => ({
-        src: product.images?.[0]?.url ? `${strapiUrl}${product.images[0].url}` : '/assets/img1.jpg',
-        alt: product.images?.[0]?.alternativeText || product.brandName || 'Product image'
-    }));
+    return products
+        .filter(product => product && product.images && product.images.length > 0) // Filter products with images
+        .map(product => ({
+            src: product.images[0]?.url ? `${strapiUrl}${product.images[0].url}` : '/assets/img1.jpg',
+            alt: product.images[0]?.alternativeText || product.brandName || 'Product image'
+        }));
 }
 
 
 function transformSliderData(products: Product[], strapiUrl: string) {
-    return products.map(product => {
-        // Extract formulation and indication from productDetails
-        const formulation = product.productDetails
-            ?.filter(detail => detail.label === 'FORMULATION')
-            .map(detail => detail.description) || [];
+    return products
+        .filter(product => product && product.images && product.images.length > 0) // Filter products with images
+        .map(product => {
+            // Extract formulation and indication from productDetails
+            const formulation = product.productDetails
+                ?.filter(detail => detail.label === 'FORMULATION')
+                .map(detail => detail.description) || [];
 
-        const indication = product.productDetails
-            ?.filter(detail => detail.label === 'INDICATIONS')
-            .map(detail => detail.description) || [];
+            const indication = product.productDetails
+                ?.filter(detail => detail.label === 'INDICATIONS')
+                .map(detail => detail.description) || [];
 
-        return {
-            id: product.id,
-            documentId: product.documentId,
-            brandName: product.brandName,
-            genericName: product.genericName,
-            category: product.category,
-            image: product.images?.[0]?.url ? `${strapiUrl}${product.images[0].url}` : '/assets/Med1.png',
-            ...(product.slug && { slug: product.slug }),
-            ...(formulation.length > 0 && { formulation }),
-            ...(indication.length > 0 && { indication })
-        };
-    });
+            return {
+                id: product.id,
+                documentId: product.documentId,
+                brandName: product.brandName || '',
+                genericName: product.genericName || '',
+                category: product.category || '',
+                image: product.images[0]?.url ? `${strapiUrl}${product.images[0].url}` : '/assets/Med1.png',
+                ...(product.slug && { slug: product.slug }),
+                ...(formulation.length > 0 && { formulation }),
+                ...(indication.length > 0 && { indication })
+            };
+        });
 }
 
 
