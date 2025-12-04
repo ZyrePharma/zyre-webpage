@@ -24,7 +24,7 @@ interface HeroItem {
     documentId: string;
     title: string;
     description: string;
-    image: StrapiImage;
+    image?: StrapiImage; // Made optional since it might not always be populated
     order: number;
     isActive: boolean;
 }
@@ -260,9 +260,9 @@ export default async function Home() {
     const strapiUrl = getStrapiURL();
 
     // Transform data for components
-    const heroData = transformHeroData(heroSlides, strapiUrl);
-    const carouselData = transformCarouselData(carouselImages, strapiUrl);
-    const sliderData = transformSliderData(featuredProducts, strapiUrl);
+    const heroData = heroSlides.length > 0 ? transformHeroData(heroSlides, strapiUrl) : [];
+    const carouselData = carouselImages.length > 0 ? transformCarouselData(carouselImages, strapiUrl) : [];
+    const sliderData = featuredProducts.length > 0 ? transformSliderData(featuredProducts, strapiUrl) : [];
 
 
     return (
