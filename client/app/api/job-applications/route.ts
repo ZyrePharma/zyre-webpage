@@ -201,7 +201,6 @@ export async function POST(request: NextRequest) {
 
                 await emailService.sendJobApplicationNotification(emailData);
 
-                console.log('Job application notification email sent successfully');
             } catch (emailError) {
                 // Log the error but don't fail the request
                 console.error('Failed to send job application notification email:', emailError);

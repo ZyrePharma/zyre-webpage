@@ -177,7 +177,6 @@ const LocationMap = ({ locations, className = '' }: LocationMapProps) => {
         };
     }, [isMapEnlarged]);
 
-    console.log("Location:", locations)
     // Always center on Philippines (12.8797° N, 121.7740° E)
     const centerLat = 12.8797;
     const centerLng = 121.7740;

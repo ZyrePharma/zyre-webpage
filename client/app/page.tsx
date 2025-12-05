@@ -179,7 +179,6 @@ async function fetchOffices(): Promise<MapLocation[]> {
             next: { revalidate: 3600 },
         });
 
-        console.log(response.data);
         // Map office data directly using lat/lng from Strapi
         return response.data.map(office => ({
             lat: office.lat ?? 0,

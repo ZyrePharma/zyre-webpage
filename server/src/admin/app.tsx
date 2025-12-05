@@ -22,7 +22,6 @@ export default {
         },
     },
     bootstrap(app: StrapiApp) {
-        console.log(app);
 
         // Function to replace Strapi branding in title
         const updateTitle = () => {

@@ -51,7 +51,6 @@ export default function Page() {
                 // Fetch products and business partners in parallel
                 const [productsResponse, partnersResponse] = await Promise.all([
                     getStrapiCollection<StrapiProduct>('products', {
-                        populate: { images: true },
                         sort: ['brandName:asc'],
                         pagination: {
                             pageSize: 100,

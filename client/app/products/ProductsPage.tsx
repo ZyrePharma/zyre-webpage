@@ -313,14 +313,13 @@ export default function ProductsPage({
                             variants={itemVariants}
                             custom={index}
                             className="relative flex flex-col items-center justify-center bg-gray-50 p-6 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 group"
-                            title={partner.name}
                         >
                             <Image
                                 src={partner.logo}
                                 alt={partner.name}
                                 width={64}
                                 height={64}
-                                className="h-16 w-auto object-contain"
+                                className="h-16 w-auto object-contain transition-transform duration-300 group-hover:scale-110"
                             />
                             <span className="absolute bottom-2 left-1/2 transform -translate-x-1/2 bg-primary text-white text-xs px-3 py-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap pointer-events-none">
                                 {partner.name}

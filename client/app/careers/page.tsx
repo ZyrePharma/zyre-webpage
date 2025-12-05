@@ -101,7 +101,6 @@ async function getCareersData() {
       next: { revalidate: 1800 }, // Revalidate every 30 minutes
     });
 
-    console.log('Jobs Response:', JSON.stringify(jobsResponse, null, 2));
 
     // Fetch benefits
     const benefitsResponse = await getStrapiCollection<StrapiZyreBenefit>('zyre-benefits', {
