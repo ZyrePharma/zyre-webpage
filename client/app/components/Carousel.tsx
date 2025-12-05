@@ -3,12 +3,15 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
+import Link from 'next/link';
 
 
 
 interface CarouselImage {
   src: string;
   alt: string;
+  slug?: string;
+  documentId?: string;
 }
 
 interface CarouselProps {
@@ -213,7 +216,7 @@ const Carousel = ({ images: propImages }: CarouselProps) => {
               return (
                 <motion.div
                   key={`${imageIndex}-${displayIndex}`}
-                  className="absolute top-0 rounded-xl overflow-hidden cursor-pointer"
+                  className="absolute top-0 rounded-xl overflow-hidden"
                   style={{
                     width: imageWidth,
                     maxWidth: imageMaxWidth,
@@ -234,30 +237,63 @@ const Carousel = ({ images: propImages }: CarouselProps) => {
                     duration: 0.7,
                   }}
                 >
-                  {/* Glassmorphism container with zyre-blue accent */}
-                  <div className="relative w-full h-full rounded-xl overflow-hidden backdrop-blur-md bg-white/30 border-2 border-[rgba(0,57,92,0.3)] shadow-[0_8px_32px_rgba(0,57,92,0.25),0_4px_16px_rgba(0,57,92,0.15),0_0_20px_rgba(0,57,92,0.1),0_2px_8px_rgba(255,255,255,0.3)]">
-                    {/* Inner glow effect with blue accent */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-[rgba(0,57,92,0.05)] pointer-events-none" />
+                  {/* Wrap in Link if product has slug or documentId */}
+                  {images[imageIndex]?.slug || images[imageIndex]?.documentId ? (
+                    <Link
+                      href={`/products/${images[imageIndex].slug || images[imageIndex].documentId}`}
+                      className="block w-full h-full cursor-pointer"
+                    >
+                      {/* Glassmorphism container with zyre-blue accent */}
+                      <div className="relative w-full h-full rounded-xl overflow-hidden backdrop-blur-md bg-white/30 border-2 border-[rgba(0,57,92,0.3)] shadow-[0_8px_32px_rgba(0,57,92,0.25),0_4px_16px_rgba(0,57,92,0.15),0_0_20px_rgba(0,57,92,0.1),0_2px_8px_rgba(255,255,255,0.3)] hover:border-[rgba(0,57,92,0.5)] transition-all">
+                        {/* Inner glow effect with blue accent */}
+                        <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-[rgba(0,57,92,0.05)] pointer-events-none" />
 
-                    {/* Top accent line */}
-                    <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[rgba(0,57,92,0.4)] to-transparent pointer-events-none" />
+                        {/* Top accent line */}
+                        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[rgba(0,57,92,0.4)] to-transparent pointer-events-none" />
 
-                    {/* Image */}
-                    <div className="relative w-full h-full">
-                      <Image
-                        src={images[imageIndex]?.src || '/assets/img1.jpg'}
-                        alt={images[imageIndex]?.alt || 'Product image'}
-                        fill
-                        className="object-cover rounded-xl"
-                      />
+                        {/* Image */}
+                        <div className="relative w-full h-full">
+                          <Image
+                            src={images[imageIndex]?.src || '/assets/img1.jpg'}
+                            alt={images[imageIndex]?.alt || 'Product image'}
+                            fill
+                            className="object-cover rounded-xl"
+                          />
+                        </div>
+
+                        {/* Bottom gradient overlay with blue tint */}
+                        <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-[rgba(0,57,92,0.15)] via-white/10 to-transparent pointer-events-none" />
+
+                        {/* Corner accent */}
+                        <div className="absolute bottom-0 right-0 w-16 h-16 bg-gradient-to-tl from-[rgba(0,57,92,0.2)] to-transparent rounded-tl-3xl pointer-events-none" />
+                      </div>
+                    </Link>
+                  ) : (
+                    /* Fallback for images without product links */
+                    <div className="relative w-full h-full rounded-xl overflow-hidden backdrop-blur-md bg-white/30 border-2 border-[rgba(0,57,92,0.3)] shadow-[0_8px_32px_rgba(0,57,92,0.25),0_4px_16px_rgba(0,57,92,0.15),0_0_20px_rgba(0,57,92,0.1),0_2px_8px_rgba(255,255,255,0.3)]">
+                      {/* Inner glow effect with blue accent */}
+                      <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-[rgba(0,57,92,0.05)] pointer-events-none" />
+
+                      {/* Top accent line */}
+                      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[rgba(0,57,92,0.4)] to-transparent pointer-events-none" />
+
+                      {/* Image */}
+                      <div className="relative w-full h-full">
+                        <Image
+                          src={images[imageIndex]?.src || '/assets/img1.jpg'}
+                          alt={images[imageIndex]?.alt || 'Product image'}
+                          fill
+                          className="object-cover rounded-xl"
+                        />
+                      </div>
+
+                      {/* Bottom gradient overlay with blue tint */}
+                      <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-[rgba(0,57,92,0.15)] via-white/10 to-transparent pointer-events-none" />
+
+                      {/* Corner accent */}
+                      <div className="absolute bottom-0 right-0 w-16 h-16 bg-gradient-to-tl from-[rgba(0,57,92,0.2)] to-transparent rounded-tl-3xl pointer-events-none" />
                     </div>
-
-                    {/* Bottom gradient overlay with blue tint */}
-                    <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-[rgba(0,57,92,0.15)] via-white/10 to-transparent pointer-events-none" />
-
-                    {/* Corner accent */}
-                    <div className="absolute bottom-0 right-0 w-16 h-16 bg-gradient-to-tl from-[rgba(0,57,92,0.2)] to-transparent rounded-tl-3xl pointer-events-none" />
-                  </div>
+                  )}
                 </motion.div>
               );
             })}

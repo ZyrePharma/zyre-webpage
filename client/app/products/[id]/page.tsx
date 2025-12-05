@@ -69,8 +69,8 @@ export default async function ProductDetailPage({
     const { id } = await params;
 
     try {
-        // Fetch product from Strapi by slug using filters
-        const response = await getStrapiCollection<StrapiProduct>('products', {
+        // Try to fetch product from Strapi by slug first
+        let response = await getStrapiCollection<StrapiProduct>('products', {
             filters: {
                 slug: {
                     $eq: id
@@ -78,6 +78,18 @@ export default async function ProductDetailPage({
             },
             populate: '*',
         });
+
+        // If not found by slug, try by documentId
+        if (!response || !response.data || response.data.length === 0) {
+            response = await getStrapiCollection<StrapiProduct>('products', {
+                filters: {
+                    documentId: {
+                        $eq: id
+                    }
+                },
+                populate: '*',
+            });
+        }
 
         // Check if we found a product
         if (!response || !response.data || response.data.length === 0) {

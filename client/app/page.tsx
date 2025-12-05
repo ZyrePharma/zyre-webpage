@@ -211,7 +211,9 @@ function transformCarouselData(products: Product[], strapiUrl: string) {
         .filter(product => product && product.images && product.images.length > 0) // Filter products with images
         .map(product => ({
             src: product.images[0]?.url ? `${strapiUrl}${product.images[0].url}` : '/assets/img1.jpg',
-            alt: product.images[0]?.alternativeText || product.brandName || 'Product image'
+            alt: product.images[0]?.alternativeText || product.brandName || 'Product image',
+            slug: product.slug,
+            documentId: product.documentId
         }));
 }
 
